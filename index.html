@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F100F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Becoming Daily Tracker</title>
+
+<style>
+@font-face { font-family: "Bebas Neue"; src: url(fonts/bebas-neue-latin-400-normal.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Oswald"; font-weight: 500; src: url(fonts/oswald-latin-500-normal.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Oswald"; font-weight: 600; src: url(fonts/oswald-latin-600-normal.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Oswald"; font-weight: 700; src: url(fonts/oswald-latin-700-normal.woff2) format("woff2"); font-display: swap; }
+/* Layout: one dark column; summary (progress + today) first, then the week grid, energy blocks, notes and history. */
+:root {
+  --ink: #0F100F;
+  --panel: #1A1C1A;
+  --panel-2: #222522;
+  --line: #2E322D;
+  --fg: #F4F4EE;
+  --muted: #9A9E95;
+  --lime: #C8F031;
+  --lime-ink: #0F100F;
+  --warn: #FF8A5C;
+  --f-display: "Bebas Neue", "Oswald", Impact, sans-serif;
+  --f-head: "Oswald", "Arial Narrow", sans-serif;
+  --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ink); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 40px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+
+/* top bar */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 9px; font-family: var(--f-head); font-weight: 700; letter-spacing: 1.6px; font-size: 15px; }
+.brand svg { flex-shrink: 0; }
+.weeknav { display: flex; align-items: center; gap: 6px; }
+.weeknav button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); font-size: 16px; }
+.weeknav .now { width: auto; padding: 0 14px; border-radius: 30px; font-size: 12px; font-weight: 600; letter-spacing: .5px; }
+.weeknav .now[hidden] { display: none; }
+.weeknav #soundBtn[aria-pressed="false"] { color: var(--muted); }
+
+/* hero */
+.hero { background: radial-gradient(120% 140% at 100% 0%, #26301a 0%, var(--panel) 55%); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; grid-template-columns: 1fr; gap: 14px; position: relative; overflow: hidden; }
+.hero::after { content: ""; position: absolute; right: -90px; top: -110px; width: 240px; height: 240px; border-radius: 50%; border: 3px solid var(--lime); opacity: .55; box-shadow: 0 0 30px rgba(200,240,49,.35); pointer-events: none; }
+.eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(40px, 8vw, 64px); line-height: .9; margin: 4px 0 0; letter-spacing: .5px; text-wrap: balance; }
+h1 span { color: var(--lime); }
+.quote { font-size: 13px; color: var(--muted); font-style: italic; margin: 6px 0 0; }
+.prog { position: relative; z-index: 1; }
+.prog-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.pct { font-family: var(--f-display); font-size: 54px; line-height: .85; color: var(--lime); font-variant-numeric: tabular-nums; }
+.prog-meta { font-size: 12px; color: var(--muted); text-align: right; }
+.bar { height: 16px; border-radius: 20px; background: #0b0c0b; border: 1px solid var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--lime); border-radius: 20px; transition: width .35s ease; box-shadow: 0 0 14px rgba(200,240,49,.55); }
+.status { font-size: 11px; color: var(--muted); margin-top: 8px; min-height: 16px; }
+.status.warn { color: var(--warn); }
+
+/* today */
+.today { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 18px; }
+.today[hidden] { display: none; }
+.today-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.today-head h2 { font-family: var(--f-display); font-weight: 400; font-size: 34px; line-height: .9; margin: 0; }
+.today-count { font-family: var(--f-head); font-weight: 600; font-size: 14px; }
+.today-count b { color: var(--lime); font-size: 22px; }
+.next { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.next b { color: var(--fg); }
+.tlist { display: flex; flex-direction: column; gap: 8px; }
+.titem { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.titem.done { border-color: var(--lime); }
+.titem.up { box-shadow: inset 3px 0 0 var(--lime); }
+.ttime { font-family: var(--f-head); font-weight: 600; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tname { font-family: var(--f-head); font-weight: 600; text-transform: uppercase; font-size: 15px; letter-spacing: .3px; }
+.tsub { font-size: 12px; color: var(--muted); }
+.tsub em { font-style: normal; color: var(--lime); font-weight: 600; }
+.tpick { margin-top: 6px; width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; color: var(--fg); padding: 7px 9px; font: inherit; font-size: 13px; }
+.tick { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line); background: transparent; display: grid; place-items: center; transition: background .15s, border-color .15s; }
+.tick svg { opacity: 0; }
+.tick[aria-pressed="true"] { background: var(--lime); border-color: var(--lime); }
+.tick[aria-pressed="true"] svg { opacity: 1; }
+
+/* week grid */
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 18px; }
+.card h3 { font-family: var(--f-display); font-weight: 400; font-size: 28px; margin: 0 0 12px; letter-spacing: .5px; }
+.gridwrap { overflow-x: auto; margin: 0 -6px; padding: 0 6px; }
+table { border-collapse: separate; border-spacing: 0 6px; width: 100%; min-width: 760px; }
+th { font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; font-weight: 600; color: var(--muted); padding: 0 4px 2px; text-align: center; }
+th.l { text-align: left; }
+th small { display: block; font-size: 10px; letter-spacing: 0; font-weight: 500; text-transform: none; }
+th.tc { color: var(--lime); }
+td { background: var(--panel-2); padding: 8px 4px; text-align: center; vertical-align: middle; }
+td:first-child { border-radius: 12px 0 0 12px; text-align: left; padding-left: 12px; }
+td:last-child { border-radius: 0 12px 12px 0; padding-right: 12px; }
+td.tc { background: #2a3020; }
+.hn { display: flex; align-items: center; gap: 8px; }
+.num { width: 20px; height: 20px; border-radius: 50%; background: var(--lime); color: var(--lime-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; flex-shrink: 0; }
+.hname { font-family: var(--f-head); font-weight: 600; text-transform: uppercase; font-size: 13px; letter-spacing: .3px; }
+.hsub { font-size: 11px; color: var(--muted); margin-left: 28px; }
+.goal { font-family: var(--f-head); font-weight: 600; font-size: 12px; white-space: nowrap; }
+.cb { width: 30px; height: 30px; border-radius: 8px; border: 2px solid #4a4f47; background: transparent; display: inline-grid; place-items: center; transition: background .15s, border-color .15s; }
+.cb svg { opacity: 0; }
+.cb[aria-pressed="true"] { background: var(--lime); border-color: var(--lime); }
+.cb[aria-pressed="true"] svg { opacity: 1; }
+.score { font-family: var(--f-head); font-weight: 600; font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.score small { color: var(--muted); font-weight: 500; }
+.score.hit { color: var(--lime); }
+.minibar { height: 4px; background: #0b0c0b; border-radius: 4px; margin-top: 4px; overflow: hidden; }
+.minibar i { display: block; height: 100%; background: var(--lime); width: 0; transition: width .3s; }
+tr.six td { background: #141613; border-top: 1px solid var(--lime); border-bottom: 1px solid var(--lime); }
+tr.six td:first-child { border-left: 1px solid var(--lime); }
+tr.six td:last-child { border-right: 1px solid var(--lime); }
+tr.six .hname { color: var(--lime); }
+.theme { font-family: var(--f-head); font-weight: 600; font-size: 10px; text-transform: uppercase; color: var(--lime); line-height: 1.1; }
+.secs { font-size: 9.5px; color: var(--muted); margin: 2px 0 5px; line-height: 1.25; }
+.pick { width: 92%; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); padding: 4px 5px; font: inherit; font-size: 11px; margin-top: 5px; }
+.legend { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+.weekhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+.weekhead h3 { margin: 0; }
+.clearbtn { border: 1px solid var(--line); background: var(--panel-2); border-radius: 30px; padding: 8px 14px; font-size: 12px; font-weight: 600; letter-spacing: .4px; }
+.clearbtn:hover { border-color: var(--lime); color: var(--lime); }
+.confirm { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: #241a14; border: 1px solid var(--warn); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; }
+.confirm.ok { background: #1c2412; border-color: var(--lime); }
+.confirm[hidden] { display: none; }
+.cbtns { display: flex; gap: 8px; }
+.cbtns button { border: 1px solid var(--line); background: var(--panel-2); border-radius: 30px; padding: 7px 14px; font-size: 12px; font-weight: 600; }
+.cbtns button.yes { background: var(--warn); border-color: var(--warn); color: var(--ink); }
+.confirm.ok .cbtns button.yes { background: var(--lime); border-color: var(--lime); }
+/* energy blocks */
+.blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.blk { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+.blk.hot { background: var(--lime); color: var(--lime-ink); border-color: var(--lime); }
+.blk .bt { font-family: var(--f-display); font-size: 26px; line-height: 1; }
+.blk .bs { font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; font-weight: 600; opacity: .65; margin: 3px 0 8px; }
+.blk ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.blk li b { font-variant-numeric: tabular-nums; }
+
+/* notes */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.note label { display: block; font-family: var(--f-head); font-weight: 600; text-transform: uppercase; font-size: 13px; letter-spacing: .4px; margin-bottom: 8px; }
+.note textarea { width: 100%; min-height: 96px; resize: vertical; background: var(--ink); border: 1px dashed #4a4f47; border-radius: 12px; color: var(--fg); padding: 10px 12px; font: inherit; font-size: 14px; }
+
+/* history */
+.hist { display: flex; flex-direction: column; gap: 8px; }
+.hrow { display: grid; grid-template-columns: 130px 1fr 52px; gap: 12px; align-items: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; text-align: left; width: 100%; }
+.hrow .hl { font-family: var(--f-head); font-weight: 600; font-size: 13px; }
+.hrow .hp { font-family: var(--f-head); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.hrow.cur { border-color: var(--lime); }
+.empty { font-size: 13px; color: var(--muted); }
+
+footer { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--muted); padding-top: 4px; }
+footer i { font-style: italic; }
+footer b { letter-spacing: 1.6px; font-size: 11px; }
+
+@media (min-width: 760px) {
+  .hero { grid-template-columns: 1.1fr 1fr; align-items: end; padding: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="7" fill="#C8F031"/><path d="M7 17 L17 7 M9 7 H17 V15" stroke="#0F100F" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      BECOMING · DAILY
+    </div>
+    <div class="weeknav">
+      <button id="soundBtn" class="now" aria-pressed="true" aria-label="Sound on">♪ Sound on</button>
+      <button id="prevWeek" aria-label="Previous week">‹</button>
+      <button id="thisWeek" class="now" hidden>This week</button>
+      <button id="nextWeek" aria-label="Next week">›</button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow" id="weekRange">Week</div>
+      <h1>WEEKLY HABIT &amp;<br><span>ENERGY TRACKER</span></h1>
+      <p class="quote">“Never miss twice. Action builds momentum; alignment builds energy.”</p>
+    </div>
+    <div class="prog">
+      <div class="prog-head">
+        <div class="pct" id="pct">0%</div>
+        <div class="prog-meta" id="progMeta">0 of 36 target ticks</div>
+      </div>
+      <div class="bar" role="progressbar" aria-label="Weekly progress" aria-valuemin="0" aria-valuemax="100" id="barRole"><i id="bar"></i></div>
+      <div class="status" id="status">Loading your week…</div>
+    </div>
+  </section>
+
+  <section class="today" id="today">
+    <div class="today-head">
+      <div>
+        <div class="eyebrow">Today</div>
+        <h2 id="todayName">Today</h2>
+      </div>
+      <div class="today-count"><b id="todayDone">0</b> / 6 done</div>
+    </div>
+    <div class="next" id="nextUp"></div>
+    <div class="tlist" id="tlist"></div>
+  </section>
+
+  <section class="card">
+    <div class="weekhead">
+      <h3>THE WEEK</h3>
+      <button id="clearBtn" class="clearbtn">↺ Clear week</button>
+    </div>
+    <div class="confirm" id="confirmBar" hidden>
+      <span id="confirmText">Clear every tick, pick and note for this week?</span>
+      <span class="cbtns"><button id="confirmYes" class="yes">Clear week</button><button id="confirmNo">Cancel</button></span>
+    </div>
+    <div class="gridwrap">
+      <table>
+        <thead><tr id="headRow"></tr></thead>
+        <tbody id="gridBody"></tbody>
+      </table>
+    </div>
+    <div class="legend">Targets add up to 36 ticks a week. Hitting every target is 100%. Extra ticks show as bonus.</div>
+  </section>
+
+  <section class="blocks" id="blocks"></section>
+
+  <section class="card notes">
+    <div class="note"><label for="wins">Key wins &amp; major milestones this week</label><textarea id="wins" placeholder="What went well this week?"></textarea></div>
+    <div class="note"><label for="strategy">One strategy to test / adjust next week</label><textarea id="strategy" placeholder="One change to try next week"></textarea></div>
+  </section>
+
+  <section class="card">
+    <h3>PAST WEEKS</h3>
+    <div class="hist" id="hist"><div class="empty">Your finished weeks will appear here, with their score.</div></div>
+  </section>
+
+  <footer>
+    <i>“He who tracks his metrics, owns his trajectory. Protect your schedule; dominate your blueprint.”</i>
+    <b>NKWETAKEM TABO BRUNO</b>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const HABITS = [
+    { k: "aff",    n: "Affirmations",   s: "Self-identity alignment",               g: "15 min",    t: 7, time: "06:00" },
+    { k: "bible",  n: "Bible Study",    s: "Spiritual alignment & study",           g: "30 min",    t: 7, time: "06:15" },
+    { k: "read",   n: "Read Book",      s: "Business, marketing & mindset",         g: "30+ min",   t: 6, time: "20:00" },
+    { k: "sell",   n: "Sell Products",  s: "Active outreach & lead gen",            g: "60 min",    t: 5, time: "11:00" },
+    { k: "create", n: "Create Content", s: "Scripts, filming, or editing",          g: "60–90 min", t: 5, time: "09:00" },
+    { k: "become", n: "Curated Content · Becoming", s: "Deliberate study from the Becoming blueprint", g: "30 min", t: 6, time: "20:45" }
+  ];
+  const TOTAL = HABITS.reduce((a, h) => a + h.t, 0);
+  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const DAY_FULL = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const THEMES = [
+    { t: "People & Lives",  s: "H Exceptional People · P Biographies" },
+    { t: "Design & World",  s: "A Architecture · B Travel & World · O Environment" },
+    { t: "Speech & Style",  s: "L Speech & Eloquence · K Dressing & Presentation" },
+    { t: "History & Money", s: "G History · R Money & Stewardship" },
+    { t: "Art & Craft",     s: "C Art & High Culture · D Craftsmanship" },
+    { t: "Film & Music",    s: "J Film & Cinema · I Music" },
+    { t: "Manners",         s: "Q Manners & Presence" }
+  ];
+  const BLOCKS = [
+    { t: "The Fortress", s: "Morning · High willpower", keys: ["aff", "bible"], hot: false },
+    { t: "The Engine",   s: "Morning · High action",    keys: ["create", "sell"], hot: false },
+    { t: "The Harvest",  s: "Evening · Relaxed learning", keys: ["read", "become"], hot: true }
+  ];
+  const CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0F100F" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- sound ---------- */
+  let soundOn = true;
+  try { soundOn = localStorage.getItem("becoming-sound") !== "off"; } catch (e) {}
+  let actx = null;
+  function ctx() {
+    if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); }
+    if (actx.state === "suspended") actx.resume();
+    return actx;
+  }
+  function tone(freq, start, dur, type, vol, slideTo) {
+    const c = ctx(); if (!c) return;
+    const t0 = c.currentTime + start;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || "sine";
+    o.frequency.setValueAtTime(freq, t0);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol || 0.18, t0 + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(c.destination);
+    o.start(t0); o.stop(t0 + dur + 0.02);
+  }
+  const SOUNDS = {
+    tick:   () => { tone(1500, 0, 0.05, "triangle", 0.22, 900); tone(2400, 0.012, 0.04, "sine", 0.08); },
+    untick: () => { tone(520, 0, 0.07, "triangle", 0.14, 300); },
+    day:    () => { [659, 784, 988].forEach((f, i) => tone(f, i * 0.09, 0.22, "sine", 0.16)); },
+    week:   () => { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.08, 0.35, "triangle", 0.15)); tone(1568, 0.42, 0.6, "sine", 0.1); }
+  };
+  function play(name) { if (!soundOn) return; try { SOUNDS[name](); } catch (e) {} }
+  function paintSoundBtn() {
+    const b = $("soundBtn");
+    b.setAttribute("aria-pressed", soundOn ? "true" : "false");
+    b.setAttribute("aria-label", soundOn ? "Sound on" : "Sound off");
+    b.textContent = soundOn ? "♪ Sound on" : "♪ Sound off";
+  }
+
+  /* ---------- dates ---------- */
+  const pad = (n) => String(n).padStart(2, "0");
+  const iso = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  function mondayOf(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+  function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function fromIso(s) { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); }
+  const fmt = (d) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const todayIdx = () => (new Date().getDay() + 6) % 7;
+  const currentWeekId = () => iso(mondayOf(new Date()));
+
+  /* ---------- state ---------- */
+  let viewWeek = currentWeekId();
+  const weeks = {};            // id -> {ticks:{k:[7]}, picks:[7], wins, strategy}
+  const dirty = new Set();     // week ids with unsaved local edits
+  let store = null;            // {save(id, data)} once ready
+  let storageNote = "";
+
+  function blankWeek() {
+    const ticks = {}; HABITS.forEach(h => ticks[h.k] = [false, false, false, false, false, false, false]);
+    return { ticks, picks: ["", "", "", "", "", "", ""], wins: "", strategy: "" };
+  }
+  function normalize(d) {
+    const w = blankWeek();
+    if (d && typeof d === "object") {
+      HABITS.forEach(h => { const a = d.ticks && d.ticks[h.k]; if (Array.isArray(a)) for (let i = 0; i < 7; i++) w.ticks[h.k][i] = !!a[i]; });
+      if (Array.isArray(d.picks)) for (let i = 0; i < 7; i++) w.picks[i] = typeof d.picks[i] === "string" ? d.picks[i] : "";
+      w.wins = typeof d.wins === "string" ? d.wins : "";
+      w.strategy = typeof d.strategy === "string" ? d.strategy : "";
+    }
+    return w;
+  }
+  const getWeek = (id) => weeks[id] || (weeks[id] = blankWeek());
+  function countOf(w, k) { return w.ticks[k].filter(Boolean).length; }
+  function scoreWeek(w) {
+    let got = 0, bonus = 0, all = 0;
+    HABITS.forEach(h => { const c = countOf(w, h.k); got += Math.min(c, h.t); bonus += Math.max(0, c - h.t); all += c; });
+    return { got, bonus, all, pct: Math.round(got / TOTAL * 100) };
+  }
+  const hasData = (w) => scoreWeek(w).all > 0 || w.wins || w.strategy || w.picks.some(Boolean);
+
+  /* ---------- saving ---------- */
+  const timers = {};
+  function setStatus(text, warn) { const el = $("status"); el.textContent = text; el.classList.toggle("warn", !!warn); }
+  function queueSave(id, delay) {
+    dirty.add(id);
+    setStatus("Saving…");
+    clearTimeout(timers[id]);
+    timers[id] = setTimeout(() => { timers[id] = null; flush(id); }, delay == null ? 350 : delay);
+  }
+  const inflight = {};
+  async function flush(id) {
+    if (!store) return;
+    if (inflight[id]) { inflight[id].again = true; return; }
+    inflight[id] = { again: false };
+    try {
+      await store.save(id, JSON.parse(JSON.stringify(weeks[id])));
+      setStatus(storageNote || "Saved");
+    } catch (e) {
+      setStatus(e && e.code === "quota_exceeded" ? "Storage is full. Your latest change was not saved." : "Couldn't save just now. Your next tick will try again.", true);
+    }
+    const again = inflight[id].again; delete inflight[id];
+    if (again) return flush(id);
+    if (!timers[id]) dirty.delete(id);
+  }
+
+  /* ---------- build DOM once ---------- */
+  function buildGrid() {
+    let h = '<th class="l">Daily habit</th><th>Goal</th>';
+    DAYS.forEach((d, i) => h += `<th data-day="${i}">${d}<small data-date="${i}"></small></th>`);
+    h += "<th>Score</th>";
+    $("headRow").innerHTML = h;
+    const body = $("gridBody");
+    HABITS.forEach((hb, r) => {
+      const tr = document.createElement("tr");
+      if (hb.k === "become") tr.className = "six";
+      let cells = `<td><div class="hn"><span class="num">${r + 1}</span><span class="hname">${hb.n}</span></div><div class="hsub">${hb.s}</div></td><td class="goal">${hb.g}</td>`;
+      for (let i = 0; i < 7; i++) {
+        if (hb.k === "become") {
+          cells += `<td data-day="${i}"><div class="theme">${THEMES[i].t}</div><div class="secs">${THEMES[i].s}</div><button class="cb" data-k="${hb.k}" data-i="${i}" aria-pressed="false" aria-label="${hb.n}, ${DAY_FULL[i]}">${CHECK}</button><input class="pick" id="pick-${i}" data-pick="${i}" placeholder="What I watched" aria-label="Becoming pick for ${DAY_FULL[i]}"></td>`;
+        } else {
+          cells += `<td data-day="${i}"><button class="cb" data-k="${hb.k}" data-i="${i}" aria-pressed="false" aria-label="${hb.n}, ${DAY_FULL[i]}">${CHECK}</button></td>`;
+        }
+      }
+      cells += `<td><div class="score" id="score-${hb.k}"></div><div class="minibar"><i id="mb-${hb.k}"></i></div></td>`;
+      tr.innerHTML = cells;
+      body.appendChild(tr);
+    });
+
+    const bl = $("blocks");
+    BLOCKS.forEach(b => {
+      const div = document.createElement("div");
+      div.className = "blk" + (b.hot ? " hot" : "");
+      const items = b.keys.map(k => { const hb = HABITS.find(x => x.k === k); return `<li><b>${hb.time}</b> · ${hb.k === "become" ? "Becoming" : hb.n} (${hb.g})</li>`; }).join("");
+      div.innerHTML = `<div class="bt">${b.t.toUpperCase()}</div><div class="bs">${b.s}</div><ul>${items}</ul>`;
+      bl.appendChild(div);
+    });
+
+    const tl = $("tlist");
+    [...HABITS].sort((a, b) => a.time.localeCompare(b.time)).forEach(hb => {
+      const row = document.createElement("div");
+      row.className = "titem"; row.dataset.k = hb.k;
+      const pick = hb.k === "become" ? `<input class="tpick" id="tpick" data-pick="today" placeholder="What will you watch, read or listen to?" aria-label="Today's Becoming pick">` : "";
+      row.innerHTML = `<div class="ttime">${hb.time}</div><div style="min-width:0"><div class="tname">${hb.k === "become" ? "Becoming" : hb.n}</div><div class="tsub" id="tsub-${hb.k}">${hb.g} · ${hb.s}</div>${pick}</div><button class="tick" data-k="${hb.k}" data-i="today" aria-pressed="false" aria-label="${hb.n}, today">${CHECK}</button>`;
+      tl.appendChild(row);
+    });
+  }
+
+  /* ---------- render ---------- */
+  function setVal(el, v) { if (el && document.activeElement !== el && el.value !== v) el.value = v; }
+  function render() {
+    const w = getWeek(viewWeek);
+    const isCur = viewWeek === currentWeekId();
+    const mon = fromIso(viewWeek);
+    $("weekRange").textContent = (isCur ? "This week · " : "Week of ") + fmt(mon) + " – " + fmt(addDays(mon, 6)) + " " + addDays(mon, 6).getFullYear();
+    $("thisWeek").hidden = isCur;
+    $("nextWeek").disabled = isCur;
+    $("nextWeek").style.opacity = isCur ? .35 : 1;
+    const ti = isCur ? todayIdx() : -1;
+
+    document.querySelectorAll("[data-date]").forEach(el => el.textContent = addDays(mon, +el.dataset.date).getDate());
+    document.querySelectorAll("[data-day]").forEach(el => el.classList.toggle("tc", +el.dataset.day === ti));
+    document.querySelectorAll(".cb").forEach(b => b.setAttribute("aria-pressed", w.ticks[b.dataset.k][+b.dataset.i] ? "true" : "false"));
+    for (let i = 0; i < 7; i++) setVal($("pick-" + i), w.picks[i]);
+    HABITS.forEach(h => {
+      const c = countOf(w, h.k);
+      const el = $("score-" + h.k);
+      el.innerHTML = `${c}<small> / ${h.t}</small>` + (c > h.t ? ` <small>+${c - h.t}</small>` : "");
+      el.classList.toggle("hit", c >= h.t);
+      $("mb-" + h.k).style.width = Math.min(100, c / h.t * 100) + "%";
+    });
+    setVal($("wins"), w.wins); setVal($("strategy"), w.strategy);
+
+    const sc = scoreWeek(w);
+    $("pct").textContent = sc.pct + "%";
+    $("bar").style.width = sc.pct + "%";
+    $("barRole").setAttribute("aria-valuenow", sc.pct);
+    $("progMeta").textContent = `${sc.got} of ${TOTAL} target ticks` + (sc.bonus ? ` · +${sc.bonus} bonus` : "");
+
+    // today
+    $("today").hidden = !isCur;
+    if (isCur) {
+      $("todayName").textContent = DAY_FULL[ti].toUpperCase() + " · " + fmt(new Date()).toUpperCase();
+      let done = 0;
+      document.querySelectorAll(".tick").forEach(b => {
+        const on = w.ticks[b.dataset.k][ti];
+        if (on) done++;
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+        b.closest(".titem").classList.toggle("done", on);
+      });
+      $("todayDone").textContent = done;
+      $("tsub-become").innerHTML = `<em>${THEMES[ti].t}</em> · ${THEMES[ti].s}`;
+      setVal($("tpick"), w.picks[ti]);
+      // up next
+      const now = new Date(); const mins = now.getHours() * 60 + now.getMinutes();
+      const order = [...HABITS].sort((a, b) => a.time.localeCompare(b.time));
+      const next = order.find(h => !w.ticks[h.k][ti] && (+h.time.slice(0, 2) * 60 + +h.time.slice(3)) >= mins - 30);
+      const pending = order.filter(h => !w.ticks[h.k][ti]);
+      document.querySelectorAll(".titem").forEach(r => r.classList.toggle("up", !!next && r.dataset.k === next.k));
+      $("nextUp").innerHTML = done === 6 ? "<b>All six done today.</b> Well done. Rest, then do it again tomorrow."
+        : next ? `Up next: <b>${next.k === "become" ? "Becoming" : next.n}</b> at <b>${next.time}</b>`
+        : `${pending.length} still open today. Never miss twice.`;
+    }
+
+    // history
+    const ids = Object.keys(weeks).filter(id => id !== currentWeekId() && hasData(weeks[id])).sort().reverse();
+    const hist = $("hist");
+    if (!ids.length) { hist.innerHTML = '<div class="empty">Your finished weeks will appear here, with their score. Tap one to open it.</div>'; }
+    else {
+      hist.innerHTML = "";
+      ids.forEach(id => {
+        const s = scoreWeek(weeks[id]); const m = fromIso(id);
+        const b = document.createElement("button");
+        b.className = "hrow" + (id === viewWeek ? " cur" : "");
+        b.innerHTML = `<span class="hl">${fmt(m)} – ${fmt(addDays(m, 6))}</span><span class="bar" style="height:10px"><i style="width:${s.pct}%"></i></span><span class="hp">${s.pct}%</span>`;
+        b.addEventListener("click", () => { viewWeek = id; render(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+        hist.appendChild(b);
+      });
+    }
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener("click", (ev) => {
+    const b = ev.target.closest(".cb, .tick");
+    if (!b) return;
+    const w = getWeek(viewWeek);
+    const i = b.dataset.i === "today" ? todayIdx() : +b.dataset.i;
+    const before = scoreWeek(w).pct;
+    const on = !w.ticks[b.dataset.k][i];
+    w.ticks[b.dataset.k][i] = on;
+    const dayDone = HABITS.every(h => w.ticks[h.k][i]);
+    const after = scoreWeek(w).pct;
+    if (!on) play("untick");
+    else if (after === 100 && before < 100) play("week");
+    else if (dayDone) play("day");
+    else play("tick");
+    render();
+    queueSave(viewWeek);
+  });
+  document.addEventListener("input", (ev) => {
+    const el = ev.target; const w = getWeek(viewWeek);
+    if (el.dataset.pick != null) {
+      const i = el.dataset.pick === "today" ? todayIdx() : +el.dataset.pick;
+      w.picks[i] = el.value.slice(0, 200);
+      if (el.dataset.pick === "today") setVal($("pick-" + i), w.picks[i]); else if (i === todayIdx()) setVal($("tpick"), w.picks[i]);
+    } else if (el.id === "wins") w.wins = el.value.slice(0, 4000);
+    else if (el.id === "strategy") w.strategy = el.value.slice(0, 4000);
+    else return;
+    queueSave(viewWeek, 800);
+  });
+  /* clear week, with an in-page confirmation and undo */
+  let undoData = null, undoTimer = null, mode = "ask";
+  function showConfirm(m) {
+    mode = m;
+    const bar = $("confirmBar");
+    bar.hidden = false;
+    bar.classList.toggle("ok", m === "undo");
+    $("confirmText").textContent = m === "ask" ? "Clear every tick, pick and note for this week?" : "Week cleared.";
+    $("confirmYes").textContent = m === "ask" ? "Clear week" : "Undo";
+    $("confirmNo").textContent = m === "ask" ? "Cancel" : "Close";
+  }
+  function hideConfirm() { $("confirmBar").hidden = true; clearTimeout(undoTimer); }
+  $("clearBtn").addEventListener("click", () => showConfirm("ask"));
+  $("confirmNo").addEventListener("click", () => { hideConfirm(); undoData = null; });
+  $("confirmYes").addEventListener("click", () => {
+    if (mode === "ask") {
+      undoData = { id: viewWeek, data: JSON.parse(JSON.stringify(getWeek(viewWeek))) };
+      weeks[viewWeek] = blankWeek();
+      play("untick");
+      render(); queueSave(viewWeek, 0);
+      showConfirm("undo");
+      undoTimer = setTimeout(() => { hideConfirm(); undoData = null; }, 10000);
+    } else if (undoData) {
+      weeks[undoData.id] = undoData.data;
+      if (viewWeek !== undoData.id) viewWeek = undoData.id;
+      play("tick");
+      render(); queueSave(undoData.id, 0);
+      undoData = null; hideConfirm();
+    }
+  });
+
+  $("soundBtn").addEventListener("click", () => {
+    soundOn = !soundOn;
+    try { localStorage.setItem("becoming-sound", soundOn ? "on" : "off"); } catch (e) {}
+    paintSoundBtn();
+    if (soundOn) play("tick");
+  });
+  $("prevWeek").addEventListener("click", () => { viewWeek = iso(addDays(fromIso(viewWeek), -7)); render(); });
+  $("nextWeek").addEventListener("click", () => { const n = iso(addDays(fromIso(viewWeek), 7)); if (n <= currentWeekId()) { viewWeek = n; render(); } });
+  $("thisWeek").addEventListener("click", () => { viewWeek = currentWeekId(); render(); });
+
+  // keep "today" and "up next" fresh while the page stays open
+  let lastDay = iso(new Date());
+  setInterval(() => {
+    const d = iso(new Date());
+    if (d !== lastDay) { const wasCur = viewWeek === iso(mondayOf(fromIso(lastDay))); lastDay = d; if (wasCur) viewWeek = currentWeekId(); }
+    render();
+  }, 60000);
+
+  /* ---------- storage ---------- */
+  const LS_KEY = "becoming-tracker-weeks";
+  function useLocal(note) {
+    storageNote = note;
+    try { const raw = localStorage.getItem(LS_KEY); if (raw) { const all = JSON.parse(raw); Object.keys(all).forEach(id => { if (!dirty.has(id)) weeks[id] = normalize(all[id]); }); } } catch (e) {}
+    store = { save: async (id, data) => { const all = {}; Object.keys(weeks).forEach(k => { if (hasData(weeks[k])) all[k] = weeks[k]; }); all[id] = data; localStorage.setItem(LS_KEY, JSON.stringify(all)); } };
+    setStatus(storageNote);
+    dirty.forEach(id => flush(id));
+    render();
+  }
+
+  async function init() {
+    buildGrid();
+    paintSoundBtn();
+    render();
+    if (!window.claude || typeof window.claude.use !== "function") { useLocal("Saved on this device only"); return; }
+    let db = null, user = null;
+    try { [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]); } catch (e) {}
+    const uid = user ? await user.id() : null;
+    if (!db || !uid) { useLocal("Saved on this device only. Sign in to sync across devices."); return; }
+    const col = db.collection("data/users/" + uid);
+    // one private document per week: data/users/<id>/<weekId>
+    store = { save: (id, data) => col.doc(id).set(data) };
+    storageNote = "Saved · synced to your account";
+    col.onSnapshot((snap) => {
+      snap.docs.forEach(d => { if (d.exists && !dirty.has(d.id)) weeks[d.id] = normalize(d.data()); });
+      if (!dirty.size) setStatus(storageNote);
+      render();
+    }, (err) => {
+      setStatus("Sync stopped. Reload the page to reconnect.", true);
+    });
+    dirty.forEach(id => flush(id));
+  }
+  init();
+  if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
+})();
+</script>
+
+</body>
+</html>

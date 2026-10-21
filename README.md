@@ -13,6 +13,8 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 - **Past weeks** with their score; a fresh week starts every Monday
 - **Sounds:** click on tick, chime when the day is complete, celebration at 100% (can be switched off)
 - **Key wins** and **one strategy** notes for each week
+- **Blueprint tab:** the full Becoming brochure inside the app (sections A–R, sources by format, action steps, the rules), with a letter bar to jump straight to any section
+- **Theme links:** tap a section on today's Becoming theme to open it in the Blueprint
 
 ## Daily schedule
 

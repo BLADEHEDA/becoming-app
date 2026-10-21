@@ -740,21 +740,41 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     rail.innerHTML = railItems.map(([id, label, word]) => `<button class="${word ? "word" : ""}" data-jump="${id}" aria-label="${id === "intro" ? "Introduction" : id === "rules" ? "The rules" : "Section " + id}">${label}</button>`).join("");
 
     const obs = new IntersectionObserver((entries) => {
-      entries.forEach(en => { if (en.isIntersecting) markRail(en.target.dataset.rail); });
+      if (jumping) return; entries.forEach(en => { if (en.isIntersecting) markRail(en.target.dataset.rail); });
     }, { rootMargin: "-35% 0px -60% 0px" });
     main.querySelectorAll(".bpsec").forEach(el => obs.observe(el));
   }
+  let jumping = false, jumpTimer = null;
   function markRail(id) {
-    $("rail").querySelectorAll("button").forEach(b => {
+    const rail = $("rail");
+    rail.querySelectorAll("button").forEach(b => {
       const on = b.dataset.jump === id;
       b.setAttribute("aria-current", on ? "true" : "false");
-      if (on && window.innerWidth < 900) b.scrollIntoView({ block: "nearest", inline: "center" });
+      // centre the active letter inside the bar itself, without touching the page scroll
+      if (on && rail.scrollWidth > rail.clientWidth) {
+        const left = b.offsetLeft - (rail.clientWidth - b.offsetWidth) / 2;
+        rail.scrollTo({ left: Math.max(0, left), behavior: "auto" });
+      }
     });
+  }
+  function jumpOffset() {
+    const top = document.querySelector(".top").offsetHeight;
+    const rail = $("rail");
+    const railH = window.innerWidth < 900 ? rail.offsetHeight : 0;
+    return top + railH + 12;
   }
   function jumpTo(id) {
     const el = $("sec-" + id); if (!el) return;
-    el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    jumping = true; clearTimeout(jumpTimer);
     markRail(id);
+    const target = () => Math.max(0, el.getBoundingClientRect().top + window.scrollY - jumpOffset());
+    const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: target(), behavior: smooth ? "smooth" : "auto" });
+    // make sure we land on the section even if the browser interrupted the animation
+    jumpTimer = setTimeout(() => {
+      if (Math.abs(el.getBoundingClientRect().top - jumpOffset()) > 4) window.scrollTo({ top: target(), behavior: "auto" });
+      jumping = false; markRail(id);
+    }, smooth ? 900 : 50);
   }
   function setHdr() { document.documentElement.style.setProperty("--hdr", document.querySelector(".top").offsetHeight + "px"); }
   function showView(v, opts) {

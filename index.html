@@ -26,6 +26,7 @@
   --lime: #C8F031;
   --lime-ink: #0F100F;
   --warn: #FF8A5C;
+  --miss: #FF5C4D;
   --f-display: "Bebas Neue", "Oswald", Impact, sans-serif;
   --f-head: "Oswald", "Arial Narrow", sans-serif;
   --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -110,6 +111,12 @@ td.tc { background: #2a3020; }
 .goal { font-family: var(--f-head); font-weight: 600; font-size: 12px; white-space: nowrap; }
 .cb { width: 30px; height: 30px; border-radius: 8px; border: 2px solid #4a4f47; background: transparent; display: inline-grid; place-items: center; transition: background .15s, border-color .15s; }
 .cb svg { opacity: 0; }
+.cb .xmark { display: none; }
+.cb.miss { border-color: var(--miss); background: rgba(255, 92, 77, .14); }
+.cb.miss .ck { display: none; }
+.cb.miss .xmark { display: block; opacity: 1; }
+.legend .lx { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--miss); background: rgba(255, 92, 77, .14); vertical-align: -3px; margin: 0 3px; }
+.legend .lt { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 4px; background: var(--lime); vertical-align: -3px; margin: 0 3px; }
 .cb[aria-pressed="true"] { background: var(--lime); border-color: var(--lime); }
 .cb[aria-pressed="true"] svg { opacity: 1; }
 .score { font-family: var(--f-head); font-weight: 600; font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -355,7 +362,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <tbody id="gridBody"></tbody>
       </table>
     </div>
-    <div class="legend">Targets add up to 36 ticks a week. Hitting every target is 100%. Extra ticks show as bonus.</div>
+    <div class="legend"><span class="lt"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0F100F" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span> done · <span class="lx"><svg width="9" height="9" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="#FF5C4D" stroke-width="3.6" stroke-linecap="round"/></svg></span> missed (past days left unticked; tap it if you did it after all). Targets add up to 36 ticks a week. Hitting every target is 100%. Extra ticks show as bonus.</div>
   </section>
 
   <section class="blocks" id="blocks"></section>
@@ -422,7 +429,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     { t: "The Engine",   s: "Morning · High action",    keys: ["create", "sell"], hot: false },
     { t: "The Harvest",  s: "Evening · Relaxed learning", keys: ["read", "become"], hot: true }
   ];
-  const CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0F100F" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CHECK = '<svg class="ck" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0F100F" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="xmark" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="#FF5C4D" stroke-width="3.4" stroke-linecap="round"/></svg>';
   const $ = (id) => document.getElementById(id);
 
   /* ---------- sound ---------- */
@@ -582,7 +589,16 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
 
     document.querySelectorAll("[data-date]").forEach(el => el.textContent = addDays(mon, +el.dataset.date).getDate());
     document.querySelectorAll("[data-day]").forEach(el => el.classList.toggle("tc", +el.dataset.day === ti));
-    document.querySelectorAll(".cb").forEach(b => b.setAttribute("aria-pressed", w.ticks[b.dataset.k][+b.dataset.i] ? "true" : "false"));
+    // a day is "past" when it is before today in this week, or any day of an earlier week
+    const pastLimit = viewWeek < currentWeekId() ? 7 : (isCur ? todayIdx() : 0);
+    document.querySelectorAll(".cb").forEach(b => {
+      const i = +b.dataset.i, done = w.ticks[b.dataset.k][i];
+      const miss = !done && i < pastLimit;
+      b.setAttribute("aria-pressed", done ? "true" : "false");
+      b.classList.toggle("miss", miss);
+      const base = b.getAttribute("aria-label").replace(/ \((done|missed)\)$/, "");
+      b.setAttribute("aria-label", base + (done ? " (done)" : miss ? " (missed)" : ""));
+    });
     for (let i = 0; i < 7; i++) setVal($("pick-" + i), w.picks[i]);
     HABITS.forEach(h => {
       const c = countOf(w, h.k);

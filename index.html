@@ -154,7 +154,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rail button { flex: 0 0 auto; min-width: 38px; height: 38px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); font-family: var(--f-display); font-size: 20px; line-height: 1; color: var(--fg); }
 .rail button.word { font-family: var(--f-head); font-size: 11px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; }
 .rail button[aria-current="true"] { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
-.bpmain { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.bpmain { display: flex; flex-direction: column; gap: 14px; min-width: 0; padding-bottom: 45vh; }
 .bpsec { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 18px; scroll-margin-top: calc(var(--hdr, 60px) + 64px + env(safe-area-inset-top, 0px)); min-width: 0; }
 .bphead { display: flex; gap: 14px; align-items: flex-start; }
 .bigl { font-family: var(--f-display); font-size: 74px; line-height: .78; color: var(--lime); flex-shrink: 0; min-width: 48px; }
@@ -210,6 +210,8 @@ details.act[open] summary::after { content: "–"; }
 .rules .q { font-family: var(--f-display); font-size: 24px; color: var(--lime); margin: 12px 0 0; line-height: 1.05; }
 .bptitle { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
 .bptitle h1 { margin: 0; }
+.bpsec h2 { overflow-wrap: break-word; }
+@media (max-width: 500px) { .bigl { font-size: 56px; min-width: 0; } .bpsec h2 { font-size: 26px; } }
 @media (min-width: 900px) {
   .bp { grid-template-columns: 64px 1fr; align-items: start; }
   .rail { flex-direction: column; overflow: visible; margin: 0; padding: 0; background: transparent; }
@@ -219,6 +221,40 @@ details.act[open] summary::after { content: "–"; }
   .bpsec { scroll-margin-top: calc(var(--hdr, 60px) + 16px + env(safe-area-inset-top, 0px)); }
 }
 
+/* doing */
+.tagpill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--lime); color: var(--lime); margin-left: 6px; vertical-align: 2px; }
+.tagpill.mt { border-color: var(--muted); color: var(--muted); }
+.why { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.note { border-left: 3px solid var(--lime); padding: 4px 0 4px 12px; font-size: 14px; margin: 12px 0 0; max-width: 70ch; }
+.chain { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.chain button { display: grid; grid-template-columns: 34px 110px 1fr auto; gap: 10px; align-items: center; text-align: left; background: var(--panel-2); border: 1px solid var(--line); border-radius: 30px; padding: 8px 12px; color: var(--fg); }
+.chain button.dp { border-color: var(--lime); }
+.chain .cn { font-family: var(--f-display); font-size: 20px; color: var(--lime); }
+.chain .cr { font-family: var(--f-head); font-weight: 600; text-transform: uppercase; font-size: 13px; }
+.chain .cs { font-size: 13px; color: var(--muted); min-width: 0; }
+.chain .ct { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; padding: 0 12px 10px; }
+.kpi { background: var(--panel-2); border-radius: 12px; padding: 10px 12px; font-family: var(--f-head); font-weight: 600; font-size: 14px; }
+.kpi.lime { background: var(--lime); color: var(--lime-ink); }
+.kpi small { display: block; font-family: var(--f-body); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; opacity: .7; margin-bottom: 3px; }
+.mgrid, .tgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+.mcard, .tcard { background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-size: 13px; }
+.mcard b, .tcard b { display: block; font-family: var(--f-head); font-weight: 600; text-transform: uppercase; font-size: 14px; }
+.mcard small { display: block; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.mcard dt { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--lime); font-weight: 700; margin-top: 6px; }
+.mcard dd { margin: 0; }
+.tcard span { color: var(--muted); }
+.hof { margin-top: 12px; background: #141613; border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+.hof h3 { font-family: var(--f-display); font-weight: 400; font-size: 24px; margin: 0 0 4px; color: var(--lime); }
+.hof ol { margin: 0; padding: 0; list-style: none; }
+.hof li { padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.hof li:first-child { border-top: 0; }
+.hof li span { display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 2px 0; }
+.hof li em { font-style: normal; color: var(--lime); font-weight: 600; }
+.method { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.code { margin: 8px 0 0; padding: 0; list-style: none; counter-reset: c; }
+.code li { counter-increment: c; display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-family: var(--f-head); font-weight: 500; font-size: 16px; }
+.code li::before { content: counter(c, decimal-leading-zero); font-family: var(--f-display); color: var(--lime); font-size: 22px; min-width: 30px; }
 /* energy blocks */
 .blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
 .blk { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
@@ -262,7 +298,8 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     </div>
     <div class="tabs" role="tablist" aria-label="Sections">
       <button role="tab" id="tabTracker" aria-selected="true" data-view="tracker">Tracker</button>
-      <button role="tab" id="tabBlueprint" aria-selected="false" data-view="blueprint">Blueprint</button>
+      <button role="tab" id="tabBlueprint" aria-selected="false" data-view="blueprint">Becoming</button>
+      <button role="tab" id="tabDoing" aria-selected="false" data-view="doing">Doing</button>
     </div>
     <div class="weeknav">
       <button id="soundBtn" class="now" aria-pressed="true" aria-label="Sound on">♪ On</button>
@@ -338,6 +375,13 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     <div class="bp">
       <nav class="rail" id="rail" aria-label="Jump to section"></nav>
       <div class="bpmain" id="bpmain"></div>
+    </div>
+  </div>
+
+  <div class="view" id="viewDoing" role="tabpanel" aria-labelledby="tabDoing" hidden>
+    <div class="bp">
+      <nav class="rail" id="drail" aria-label="Jump to skill"></nav>
+      <div class="bpmain" id="dmain"></div>
     </div>
   </div>
 
@@ -744,9 +788,71 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     }, { rootMargin: "-35% 0px -60% 0px" });
     main.querySelectorAll(".bpsec").forEach(el => obs.observe(el));
   }
+
+  /* ---------- doing ---------- */
+  const DO = {"skills": [{"key": "F", "num": "00", "tag": "Foundation", "short": "Psychology", "title": "HUMAN PSYCHOLOGY & PERSUASION", "intro": "Why people trust, desire and buy. Every skill in this book runs on it.", "note": "The sellers who seem to “hypnotise” people use no hidden tricks. People trust them, they understand the customer better than the customer understands himself, and they say exactly what the customer was already thinking.", "groups": [{"f": "Book", "items": [{"t": "Influence", "a": "Robert Cialdini", "w": "The seven principles behind every “yes”."}, {"t": "Pre-Suasion", "a": "Robert Cialdini", "w": "What you say before the request decides the answer."}, {"t": "Cashvertising", "a": "Drew Eric Whitman", "w": "The 8 core desires people are wired to want, applied to ads and copy."}, {"t": "How to Win Friends and Influence People", "a": "Dale Carnegie", "w": "Trust and rapport: making people feel heard, important and understood."}]}], "hof": [], "action": {"rep": "5 persuasion examples decoded every week", "metric": "Entries in your persuasion log each week", "expose": ["One chapter a week, in this order: Influence, Pre-Suasion, Cashvertising, How to Win Friends."], "reflect": ["For every ad, email or sales talk you meet, name the desire it speaks to and the principle it uses. One line each."], "repeat": ["Before you write or speak to sell, write two lines first: “Desire: ___. Principle: ___.”", "In every conversation, make the other person feel heard before you make your point."], "env": ["Watch the best sellers in your city's markets and shops: how they greet, build trust and close. Note what you see."]}}, {"key": "1", "num": "01", "tag": "Depth", "short": "Offer", "title": "OFFER CREATION & PRODUCT DEVELOPMENT", "intro": "Build something worth buying. Everything else in this book exists to sell it.", "note": null, "groups": [{"f": "Book", "items": [{"t": "$100M Offers", "a": "Alex Hormozi", "w": "Offers so good people feel stupid saying no: value, pricing, guarantees, bonuses. The master key."}, {"t": "The Mom Test", "a": "Rob Fitzpatrick", "w": "How to learn what customers really want, without them lying to you politely."}]}, {"f": "Swipe", "items": [{"t": "Worked offers in $100M Offers", "a": "", "w": "Real offer examples from the book, used as your first templates."}, {"t": "Sales pages of top sellers", "a": "via the Meta Ad Library", "w": "Live offers broken down line by line: headline, promise, stack, bonuses, guarantee, price, urgency."}]}], "hof": [], "action": {"rep": "1 offer broken down a week · 5 customer interviews a month", "metric": "Sales page conversion rate (buyers ÷ visitors)", "expose": ["Reread $100M Offers once a quarter. Read The Mom Test once, then keep it close."], "reflect": ["Break down one winning offer a week: headline, promise, value stack, bonuses, guarantee, price, urgency. Count its parts."], "repeat": ["Rebuild your main offer every month with the same structure as the best one you studied.", "Run 5 customer interviews a month using The Mom Test rules."], "env": ["Talk to real customers every week. Ask buyers why they bought, and non-buyers why they didn't."]}}, {"key": "2", "num": "02", "tag": "Depth", "short": "Copy", "title": "COPYWRITING & EMAIL MARKETING", "intro": "Persuasion in print. The base of your ads, emails, funnels and content.", "note": null, "groups": [{"f": "Book", "items": [{"t": "Breakthrough Advertising", "a": "Eugene Schwartz", "w": "Market awareness and sophistication: what to say at each stage. Reread it for life."}, {"t": "The Adweek Copywriting Handbook", "a": "Joseph Sugarman", "w": "The craft: every sentence pulling the reader to the next."}, {"t": "The Boron Letters", "a": "Gary Halbert", "w": "Letters to his son on how to train as a copywriter. Free to read online."}, {"t": "Tested Advertising Methods", "a": "John Caples", "w": "Your proven-headline swipe file: headlines tested for decades."}]}, {"f": "YouTube", "items": [{"t": "RMBC method", "a": "Stefan Georgi", "w": "A modern process: Research, Mechanism, Brief, Copy."}]}, {"f": "Course", "items": [{"t": "systeme.io certification", "a": "", "w": "The tool side of email marketing: lists, sequences, automations."}]}, {"f": "Swipe", "items": [{"t": "Swiped.co", "a": "", "w": "Real ads, letters and emails, each annotated to show why it works."}, {"t": "SwipeFile.com", "a": "", "w": "Classic direct-response copy, including Halbert's letters."}, {"t": "Milled.com", "a": "", "w": "A searchable archive of brand emails."}]}], "hof": [{"t": "“They Laughed When I Sat Down at the Piano…”", "by": "John Caples · 1926", "s": "The underdog-transformation story headline."}, {"t": "“Do You Make These Mistakes in English?”", "by": "Maxwell Sackheim", "s": "A fear-of-mistakes hook that ran for decades."}, {"t": "The Wall Street Journal “Two Young Men” letter", "by": "Martin Conroy · 1975", "s": "A quiet story that sells ambition without hype."}, {"t": "The “Coat of Arms” letter", "by": "Gary Halbert · 1971", "s": "Personalisation and curiosity. On SwipeFile.com."}, {"t": "“At 60 miles an hour… the electric clock”", "by": "David Ogilvy · Rolls-Royce · 1958", "s": "One specific fact beats every adjective."}, {"t": "“Think Small”", "by": "DDB · Volkswagen · 1959", "s": "Honesty and self-deprecation as persuasion."}], "action": {"rep": "1 email every day · 1 great ad copied by hand every week", "metric": "Email open rate, click rate and sales per email", "expose": ["Adweek Handbook first, then Breakthrough Advertising slowly, one chapter a week. Boron Letters alongside."], "reflect": ["For every Hall of Fame piece, label each part: headline, lead, story, proof, offer, close."], "repeat": ["Copy one great ad or letter by hand every week: Halbert's method.", "Write 10 headlines for everything you write, then pick one."], "env": ["Have your copy reviewed every week by a peer or mentor who sells. Ask for criticism, not compliments."]}}, {"key": "3", "num": "03", "tag": "Depth", "short": "Sales", "title": "SALES CONVERSATIONS & SPEAKING", "intro": "Persuasion by voice: your natural gift. Calls, objections, closing, live selling.", "note": null, "groups": [{"f": "Book", "items": [{"t": "SPIN Selling", "a": "Neil Rackham", "w": "Built on research into thousands of real sales calls. Sell with questions, not pressure."}, {"t": "Never Split the Difference", "a": "Chris Voss", "w": "An FBI hostage negotiator on objections, emotions and negotiation."}, {"t": "Expert Secrets", "a": "Russell Brunson", "w": "The Perfect Webinar: selling to a room, a live stream or a webinar."}]}, {"f": "YouTube", "items": [{"t": "CLOSER framework", "a": "Alex Hormozi", "w": "Clarify, Label, Overview, Sell the vacation, Explain concerns, Reinforce."}]}, {"f": "Swipe", "items": [{"t": "Perfect Webinar script", "a": "in Expert Secrets", "w": "The full script, line by line."}, {"t": "Live webinars of top marketers", "a": "", "w": "Attend them, save the replays and slides."}, {"t": "Your own recorded calls", "a": "", "w": "Recorded with consent. Keep the ones that close."}]}], "hof": [{"t": "OxiClean infomercials", "by": "Billy Mays", "s": "Demonstration, energy and total conviction."}, {"t": "BluBlocker sunglasses", "by": "Joseph Sugarman", "s": "The author of your copy handbook selling on TV."}, {"t": "ShamWow", "by": "Vince Offer", "s": "Fast demos and the value stack: “but wait, there's more”."}], "action": {"rep": "10 sales conversations a week · 1 live or webinar a month", "metric": "Close rate (sales ÷ conversations)", "expose": ["One chapter a week of SPIN Selling or Never Split the Difference. Watch one top marketer's live webinar each month."], "reflect": ["After every call, score it against CLOSER: which step was weakest?", "Write down every objection, word for word."], "repeat": ["Build an objection bank with your best answer to each objection.", "Run one live or webinar a month with the Perfect Webinar structure."], "env": ["Record your calls (with consent) and role-play weekly with a partner who sells."]}}, {"key": "4", "num": "04", "tag": "Maintenance", "short": "Content", "title": "CONTENT CREATION", "intro": "Attention and trust over time. Content is copy and speech turned into media.", "note": null, "groups": [{"f": "Book", "items": [{"t": "$100M Leads", "a": "Alex Hormozi", "w": "How to get attention: warm outreach, cold outreach, content and paid ads."}]}, {"f": "Swipe", "items": [{"t": "TikTok Creative Center", "a": "", "w": "TikTok's free library of top ads and trends, by industry and country."}]}, {"f": "Practice", "items": [{"t": "Weekly breakdown", "a": "", "w": "5 top videos in your niche: the hook (first 3 seconds), the structure, the call to action."}]}], "hof": [{"t": "“This Unicorn Changed the Way I Poop”", "by": "Harmon Brothers · Squatty Potty · 2015", "s": "Comedy carrying a full sales argument."}, {"t": "“Girls Don't Poop”", "by": "Harmon Brothers · Poo-Pourri · 2013", "s": "A taboo turned into a charming, shareable hook."}, {"t": "The Raw Egg Test", "by": "Harmon Brothers · Purple Mattress", "s": "Proof through demonstration, not claims."}, {"t": "“The Man Your Man Could Smell Like”", "by": "Old Spice · 2010", "s": "The fastest script and pure hook mastery."}], "action": {"rep": "5 videos broken down · 5 pieces published · 10 hooks per piece", "metric": "Hook hold rate (who stays past 3 seconds) and leads per post", "expose": ["Read $100M Leads once. Check TikTok Creative Center every week."], "reflect": ["Break down 5 top videos a week: hook, structure, call to action. Save the best hooks in your hook bank."], "repeat": ["Write 10 hooks for every piece and film the best one.", "Publish on a fixed schedule. Remake your winners in new forms."], "env": ["Read every comment as market research. Collaborate with creators in your niche."]}}, {"key": "5", "num": "05", "tag": "Maintenance", "short": "Funnels", "title": "FUNNEL BUILDING", "intro": "The system that turns attention into buyers: ad → opt-in → offer → follow-up.", "note": null, "groups": [{"f": "Book", "items": [{"t": "DotCom Secrets", "a": "Russell Brunson", "w": "How funnels and value ladders are designed. The clearest explanation there is."}, {"t": "Sell Like Crazy", "a": "Sabri Suby", "w": "The full direct-response system, from ad to lead magnet to sale."}]}, {"f": "Swipe", "items": [{"t": "Funnel hacking", "a": "", "w": "Opt into competitors' funnels, buy their cheapest product, save every page and email."}]}], "hof": [], "action": {"rep": "1 competitor funnel hacked a month · 1 test always running", "metric": "Opt-in rate and lead-to-customer rate", "expose": ["DotCom Secrets, then Sell Like Crazy."], "reflect": ["Map every competitor funnel you hack: each page, each email, each offer, in order."], "repeat": ["Keep one funnel live at all times.", "Change one element at a time: headline, lead magnet, offer, email."], "env": ["Ask someone to go through your funnel out loud and tell you where they hesitated."]}}, {"key": "6", "num": "06", "tag": "Maintenance", "short": "Ads", "title": "MEDIA BUYING", "intro": "The amplifier. Only pour money on an offer and a funnel that already convert.", "note": null, "groups": [{"f": "Course", "items": [{"t": "Meta Blueprint", "a": "Meta", "w": "Meta's free official training. Always current with the platform."}]}, {"f": "YouTube", "items": [{"t": "Ben Heath", "a": "", "w": "Campaign structure, testing and creative, explained without hype."}]}, {"f": "Swipe", "items": [{"t": "Meta Ad Library", "a": "", "w": "Every ad running on Facebook and Instagram. Ads that run for months are profitable."}]}], "hof": [{"t": "“Here in My Garage”", "by": "Tai Lopez · 2015", "s": "Status, curiosity and value first. Selling knowledge, not a product."}, {"t": "“Our Blades Are F***ing Great”", "by": "Dollar Shave Club · 2012", "s": "Problem, enemy and cheap solution, in under 2 minutes."}], "action": {"rep": "3 new ads tested every week", "metric": "Cost per lead, cost per customer, return on ad spend", "expose": ["Meta Blueprint modules, then one Ben Heath video a week."], "reflect": ["Save 5 long-running ads a week from the Meta Ad Library. Label the hook, angle, offer and format."], "repeat": ["Launch 3 new ads a week on a small budget. Cut the losers, scale the winners."], "env": ["Review your numbers monthly with someone who has spent more on ads than you."]}}], "models": [{"t": "Physical products", "sub": "E-commerce", "sell": "Goods sourced where they're cheap, sold where they're valued.", "dev": "Sourcing, quality control, packaging, delivery.", "ch": "Margins and delivery trust."}, {"t": "Services", "sub": "Done for you", "sell": "Your skill or your team's, delivered as an outcome.", "dev": "Defining the result and a repeatable way to deliver it.", "ch": "Quality, and scaling beyond your own hours."}, {"t": "Digital products", "sub": "Courses · training · e-books", "sell": "Knowledge that produces a result.", "dev": "A curriculum that gets people the result. Build once, sell many times.", "ch": "Proof, trust and refunds."}, {"t": "Software", "sub": "SaaS", "sell": "A tool that solves a problem, on subscription.", "dev": "Solving one painful problem very well.", "ch": "Keeping customers subscribed."}], "forces": [["01", "VOLUME OF REPS", "Mastery is a number of attempts, not a number of pages. Hundreds of pieces of copy, hundreds of conversations, dozens of offers."], ["02", "FEEDBACK", "Measure everything. Get reviewed by someone sharper. Without feedback you can practise the same mistakes for years."], ["03", "TIME", "Competent in 6–12 months of daily practice. Excellent in 3–5 years. Exceptional over a career."]], "chain": [["00", "Foundation", "Human Psychology & Persuasion", "Always on"], ["01", "Offer", "Offer Creation & Product Development", "Depth"], ["02", "Message", "Copywriting & Email Marketing", "Depth"], ["03", "Spoken sale", "Sales Conversations & Speaking", "Depth"], ["04", "Attention", "Content Creation", "Maintenance"], ["05", "System", "Funnel Building", "Maintenance"], ["06", "Amplification", "Media Buying", "Maintenance"]], "vault": [["Offers", "$100M Offers examples · sales pages of top sellers"], ["Headlines", "Tested Advertising Methods · Swiped.co"], ["Sales & landing pages", "Funnel hacking · pages linked from the Meta Ad Library"], ["VSLs", "Video sales letters via the Meta Ad Library — save the page and an AI transcript"], ["Advertorials", "Article-style pages that ads link to"], ["Emails", "Milled.com · the lists you're on · funnel hacking"], ["Meta ads", "Meta Ad Library — long-running ads only"], ["Hooks", "TikTok Creative Center · top creators in your niche"], ["Webinars", "Perfect Webinar script · replays of live webinars"], ["Sales calls", "Your own recorded calls, with consent"], ["Hall of Fame", "The 15 greats from this book"]], "nums": [["Conversion rate", "Buyers ÷ visitors to the sales page"], ["Opt-in rate", "Leads ÷ visitors to the opt-in page"], ["Close rate", "Sales ÷ sales conversations"], ["Cost per lead", "Ad spend ÷ leads"], ["Cost per customer", "Ad spend ÷ customers"], ["Customer value", "Average revenue from one customer over time"], ["Return on ad spend", "Revenue from ads ÷ ad spend"], ["Email performance", "Opens, clicks and sales per email"]], "score": [["Daily", ["1 piece of copy (an email)", "2 sales conversations", "10 hooks written"]], ["Weekly", ["5 swipe breakdowns", "1 great ad copied by hand", "1 Hall of Fame study", "5 pieces of content", "3 new ads tested", "Numbers review"]], ["Monthly", ["1 offer rebuilt", "5 customer interviews", "1 competitor funnel hacked", "1 live or webinar", "1 external review"]]], "fb": [["Every Sunday — self-review", ["Read the week's numbers.", "Pick your best and worst piece of work.", "Write one lesson and one change for next week."]], ["Every month — outside review", ["Send your best copy, offer or call to someone sharper than you.", "Ask for criticism, not compliments."]], ["Every quarter — return to the source", ["Reread $100M Offers and one copywriting classic.", "Compare your work now with your work 3 months ago."]], ["Where to find feedback", ["A mentor who has sold more than you.", "A paid coach, or a serious mastermind of sellers.", "Peers at your level who will be honest."]]], "seasons": [["Season 1", "Offer + Copy", "Days 1–90"], ["Season 2", "Copy + Sales", "Days 91–180"], ["Season 3", "Sales + Content", "Days 181–270"], ["Season 4", "Funnels + Media buying", "Days 271–365"]], "mk": [["Trust", "People buy from faces and proof. Show real results and real customers, in their language."], ["Payment", "Mobile money, payment on delivery, payment plans. Remove every barrier to paying."], ["Channels", "WhatsApp, Facebook and TikTok carry the market. Selling often happens in conversation."], ["Language", "French and English, with local expressions. Speak the way your customer speaks."], ["Price", "Smaller entry offers and instalments open the door; the value ladder does the rest."], ["The judge", "The books are mostly American. Treat their ideas as hypotheses. Your local numbers decide."]], "code": ["Only sell what deserves to be sold.", "Never lie. Never fake proof, scarcity or results.", "Deliver more than you promised.", "Persuade people toward a good decision, never against their interest.", "Earn trust before you ask for money.", "Protect your name. Reputation compounds faster than any skill."]};
+  const DPILL = { "YouTube": "yt", "Book": "book", "Course": "pod" };
+  function buildDoing() {
+    const main = $("dmain"), rail = $("drail");
+    const forces = DO.forces.map(([n, t, d]) => `<div class="force"><b><span>${n}</span>${esc(t)}</b>${esc(d)}</div>`).join("");
+    const chain = DO.chain.map(([n, r, s, t]) => `<button class="${t === "Maintenance" ? "" : "dp"}" data-jump="d${n}"><span class="cn">${n}</span><span class="cr">${esc(r)}</span><span class="cs">${esc(s)}</span><span class="ct">${esc(t)}</span></button>`).join("");
+    let html = `<section class="bpsec intro" id="sec-dintro" data-rail="dintro">
+      <div class="kick">Doing · Becoming Volume II · The Skill Stack of a Master Seller</div>
+      <h1>TASTE MAKES YOU REFINED. <span>SKILL MAKES YOU VALUABLE.</span></h1>
+      <p>Volume I shapes the man. Volume II shapes what he offers. Refinement alone pays nothing. Value is what the market experiences, and value is built through skill.</p>
+      <div class="bdh"><span>BE</span>→<span class="on">DO</span>→<span>HAVE</span></div>
+      <div class="kick" style="margin-top:14px">How mastery works</div>
+      <div class="forces">${forces}</div>
+      <div class="kick" style="margin-top:16px">The skill stack · how money is made · tap a skill to open it</div>
+      <div class="chain">${chain}</div>
+    </section>`;
+    DO.skills.forEach(sk => {
+      const id = "d" + sk.num;
+      let k = 0;
+      const groups = sk.groups.map(g => `<div class="fgroup"><div class="fhead"><span class="pill ${DPILL[g.f] || ""}">${esc(g.f)}</span><span class="fcount">${g.items.length}</span></div><ol>${g.items.map(it => { k++;
+        return `<li><span class="n">${String(k).padStart(2, "0")}</span><span>${esc(it.t)}${it.a ? ` <span class="sub">— ${esc(it.a)}</span>` : ""}<span class="why">${esc(it.w)}</span></span></li>`; }).join("")}</ol></div>`).join("");
+      const models = sk.key === "1" ? `<div class="kick" style="margin-top:14px">The four business models · the offer is how you sell it, the model is how you deliver it</div><div class="mgrid">${DO.models.map(m => `<div class="mcard"><b>${esc(m.t)}</b><small>${esc(m.sub)}</small><dl><dt>You sell</dt><dd>${esc(m.sell)}</dd><dt>Product development</dt><dd>${esc(m.dev)}</dd><dt>Main challenge</dt><dd>${esc(m.ch)}</dd></dl></div>`).join("")}</div>` : "";
+      const hof = sk.hof.length ? `<div class="hof"><h3>HALL OF FAME</h3><ol>${sk.hof.map(h => `<li><b>${esc(h.t)}</b><span>${esc(h.by)}</span><em>Study:</em> ${esc(h.s)}</li>`).join("")}</ol><div class="method">Method: transcribe it, label every part (hook, problem, mechanism, proof, offer, call to action), write the skeleton, then write your own version on the same skeleton.</div></div>` : "";
+      const a = sk.action;
+      const blk = (n, t, list) => `<div class="ablk"><h4><span>${n}</span>${t}</h4><ul>${list.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
+      const tagCls = sk.tag === "Maintenance" ? "tagpill mt" : "tagpill";
+      html += `<section class="bpsec" id="sec-${id}" data-rail="${id}">
+        <div class="bphead"><div class="bigl">${sk.num}</div><div style="min-width:0"><div class="kick">${sk.key === "F" ? "Foundation" : "Skill " + sk.num + " / 06"}<span class="${tagCls}">${sk.key === "F" ? "Always on" : esc(sk.tag)}</span></div><h2>${esc(sk.title)}</h2><p class="purpose">${esc(sk.intro)}</p></div></div>
+        ${sk.note ? `<p class="note">${esc(sk.note)}</p>` : ""}
+        ${models}
+        <div class="fgroups">${groups}</div>
+        ${hof}
+        <details class="act"><summary>Action step</summary>
+          <div class="kpis"><div class="kpi lime"><small>Rep target</small>${esc(a.rep)}</div><div class="kpi"><small>Number to track</small>${esc(a.metric)}</div></div>
+          <div class="agrid">${blk("01", "Expose", a.expose)}${blk("02", "Reflect", a.reflect)}${blk("03", "Repeat", a.repeat)}${blk("04", "Environment &amp; People", a.env)}</div>
+        </details>
+      </section>`;
+    });
+    const tools = [
+      ["dvault", "Vault", "THE SWIPE VAULT", "One folder, eleven sub-folders, filled every week. Copy the structure, never the words.", `<div class="tgrid">${DO.vault.map(([a, b]) => `<div class="tcard"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join("")}</div>`],
+      ["dnums", "Numbers", "THE NUMBERS", "You can't improve what you don't measure. Review these every Sunday.", `<div class="tgrid">${DO.nums.map(([a, b]) => `<div class="tcard"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join("")}</div><p class="note">A common benchmark: one customer should be worth at least 3× what it costs to get him. Below that, fix the offer before buying more traffic.</p>`],
+      ["dreps", "Reps", "REP SCOREBOARD", "Mastery is counted in attempts. These are the minimum volumes. Never miss twice.", `<div class="tgrid">${DO.score.map(([h, it]) => `<div class="tcard"><b>${esc(h)}</b><ul style="margin:6px 0 0;padding-left:16px">${it.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`).join("")}</div>`],
+      ["dloop", "Feedback", "THE FEEDBACK LOOP", "You can't see your own blind spots. Build a loop that shows them to you.", `<div class="tgrid">${DO.fb.map(([h, it]) => `<div class="tcard"><b>${esc(h)}</b><ul style="margin:6px 0 0;padding-left:16px">${it.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`).join("")}</div>`],
+      ["dseasons", "Seasons", "THE MASTERY CALENDAR", "Go deep on two skills at a time, in 90-day seasons. The others stay on maintenance; psychology is always on.", `<div class="tgrid">${DO.seasons.map(([s, f, d]) => `<div class="tcard"><span>${esc(d)}</span><b>${esc(s)}</b>${esc(f)} in depth</div>`).join("")}</div>`],
+      ["dmarket", "Market", "YOUR MARKET", "Principles travel. Markets have their own rules. Adapt everything to Cameroon and West Africa.", `<div class="tgrid">${DO.mk.map(([a, b]) => `<div class="tcard"><b>${esc(a)}</b>${esc(b)}</div>`).join("")}</div>`],
+      ["dcode", "Code", "THE SELLER'S CODE", "The respect you want comes from how you sell, not just how much.", `<ol class="code">${DO.code.map(c => `<li>${esc(c)}</li>`).join("")}</ol>`]
+    ];
+    tools.forEach(([id, , title, lead, body]) => {
+      html += `<section class="bpsec" id="sec-${id}" data-rail="${id}"><div class="kick">The machinery</div><h2>${title}</h2><p class="purpose">${lead}</p>${body}</section>`;
+    });
+    main.innerHTML = html;
+    const items = [["dintro", "Intro", true], ...DO.skills.map(s => ["d" + s.num, s.num, false]), ...tools.map(t => [t[0], t[1], true])];
+    rail.innerHTML = items.map(([id, label, word]) => `<button class="${word ? "word" : ""}" data-jump="${id}">${label}</button>`).join("");
+    const obs = new IntersectionObserver((entries) => {
+      if (jumping) return; entries.forEach(en => { if (en.isIntersecting) markRail(en.target.dataset.rail); });
+    }, { rootMargin: "-35% 0px -60% 0px" });
+    main.querySelectorAll(".bpsec").forEach(el => obs.observe(el));
+  }
+
   let jumping = false, jumpTimer = null;
+  function railFor(id) { const b = document.querySelector(`.rail [data-jump="${id}"]`); return b ? b.closest(".rail") : $("rail"); }
   function markRail(id) {
-    const rail = $("rail");
+    const rail = railFor(id);
     rail.querySelectorAll("button").forEach(b => {
       const on = b.dataset.jump === id;
       b.setAttribute("aria-current", on ? "true" : "false");
@@ -759,7 +865,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   }
   function jumpOffset() {
     const top = document.querySelector(".top").offsetHeight;
-    const rail = $("rail");
+    const rail = !$("viewDoing").hidden ? $("drail") : $("rail");
     const railH = window.innerWidth < 900 ? rail.offsetHeight : 0;
     return top + railH + 12;
   }
@@ -778,13 +884,13 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   }
   function setHdr() { document.documentElement.style.setProperty("--hdr", document.querySelector(".top").offsetHeight + "px"); }
   function showView(v, opts) {
-    const bp = v === "blueprint";
-    $("viewTracker").hidden = bp; $("viewTracker").style.display = bp ? "none" : "flex";
-    $("viewBlueprint").hidden = !bp;
-    $("tabTracker").setAttribute("aria-selected", bp ? "false" : "true");
-    $("tabBlueprint").setAttribute("aria-selected", bp ? "true" : "false");
-    $("weekBtns").style.display = bp ? "none" : "contents";
-    try { history.replaceState(null, "", "#" + (bp ? "blueprint" : "tracker")); } catch (e) {}
+    if (v === "becoming") v = "blueprint";
+    const views = { tracker: "viewTracker", blueprint: "viewBlueprint", doing: "viewDoing" };
+    const tabs = { tracker: "tabTracker", blueprint: "tabBlueprint", doing: "tabDoing" };
+    Object.keys(views).forEach(k => { const on = k === v; $(views[k]).hidden = !on; $(tabs[k]).setAttribute("aria-selected", on ? "true" : "false"); });
+    $("viewTracker").style.display = v === "tracker" ? "flex" : "none";
+    $("weekBtns").style.display = v === "tracker" ? "contents" : "none";
+    try { history.replaceState(null, "", "#" + (v === "blueprint" ? "becoming" : v)); } catch (e) {}
     setHdr();
     if (!(opts && opts.keepScroll)) window.scrollTo({ top: 0 });
   }
@@ -799,9 +905,12 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   async function init() {
     buildGrid();
     buildBlueprint();
+    buildDoing();
     paintSoundBtn();
     setHdr();
-    if (location.hash === "#blueprint") showView("blueprint", { keepScroll: true });
+    const h = location.hash.slice(1);
+    if (h === "blueprint" || h === "becoming") showView("blueprint", { keepScroll: true });
+    else if (h === "doing") showView("doing", { keepScroll: true });
     render();
     if (!window.claude || typeof window.claude.use !== "function") { useLocal("Saved on this device only"); return; }
     let db = null, user = null;

@@ -370,11 +370,15 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <input type="email" id="syncEmail" placeholder="you@example.com" autocomplete="email" required aria-label="Email for sign-in link">
         <button type="submit" id="syncSend">Send sign-in link</button>
       </form>
+      <form id="codeForm" class="syncrow" hidden style="margin-top:8px">
+        <input type="text" id="syncCode" inputmode="numeric" autocomplete="one-time-code" placeholder="Code from the email" aria-label="Sign-in code from the email">
+        <button type="submit" id="codeSend">Verify code</button>
+      </form>
     </div>
     <div id="syncIn" hidden>
       <b>Synced</b>
       <p id="syncWho"></p>
-      <button id="syncOutBtn" class="ghost">Sign out on this device</button>
+      <div class="syncrow"><button id="syncNow">Sync now</button><button id="syncOutBtn" class="ghost">Sign out on this device</button></div>
     </div>
     <p class="syncmsg" id="syncMsg"></p>
   </section>
@@ -453,6 +457,8 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.75.0/dist/umd/supabase.js"></script>
 <script>
 (function () {
+  // keep the sign-in details from the email link before the app rewrites the address
+  const AUTH_URL = { hash: location.hash, search: location.search };
   const HABITS = [
     { k: "aff",    n: "Affirmations",   s: "Self-identity alignment",               g: "15 min",    t: 7, time: "06:00" },
     { k: "bible",  n: "Bible Study",    s: "Spiritual alignment & study",           g: "30 min",    t: 7, time: "06:15" },
@@ -834,70 +840,122 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   const pending = new Set((() => { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch (e) { return []; } })());
   const savePending = () => { try { localStorage.setItem(PENDING_KEY, JSON.stringify([...pending])); } catch (e) {} };
   function syncMsg(t, err) { const el = $("syncMsg"); el.textContent = t || ""; el.classList.toggle("err", !!err); }
+  let lastSync = null;
   function paintSync() {
     $("syncCard").hidden = !sb;
     $("syncOut").hidden = !!sbUser; $("syncIn").hidden = !sbUser;
-    if (sbUser) $("syncWho").textContent = "Signed in as " + (sbUser.email || "you") + ". Ticks on any device appear here.";
+    if (sbUser) $("syncWho").textContent = "Signed in as " + (sbUser.email || "you") + "." + (lastSync ? " Last synced " + lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "." : "");
+  }
+  function explain(error) {
+    const m = (error && (error.message || "")) + " " + (error && error.code || "");
+    if (/PGRST205|42P01|does not exist|Could not find the table/i.test(m)) return "The weeks table is missing in Supabase. Run the SQL in Supabase's SQL Editor, then tap Sync now.";
+    if (/JWT|token|401|not authorized|permission/i.test(m)) return "Your sign-in expired or isn't allowed. Sign out, then sign in again.";
+    if (/fetch|network|Failed/i.test(m)) return "No connection to the sync server. Your ticks are saved here and will upload later.";
+    return "Sync error: " + (error && error.message || "unknown");
   }
   async function pushPending() {
-    if (!sb || !sbUser || !navigator.onLine || !pending.size) return;
+    if (!sb || !sbUser || !navigator.onLine || !pending.size) return true;
     const rows = [...pending].filter(id => weeks[id]).map(id => ({ user_id: sbUser.id, week_id: id, data: weeks[id], updated_at: new Date(weeks[id]._t || Date.now()).toISOString() }));
-    if (!rows.length) { pending.clear(); savePending(); return; }
+    if (!rows.length) { pending.clear(); savePending(); return true; }
     const { error } = await sb.from("weeks").upsert(rows, { onConflict: "user_id,week_id" });
-    if (error) { setStatus("Saved on this device. Will sync when the connection is back.", true); return; }
+    if (error) { syncMsg(explain(error), true); setStatus("Saved on this device. Not synced yet.", true); return false; }
     rows.forEach(r => pending.delete(r.week_id)); savePending();
-    setStatus(storageNote);
+    lastSync = new Date(); paintSync(); setStatus(storageNote);
+    return true;
   }
-  async function pullAll() {
-    if (!sb || !sbUser || !navigator.onLine) return;
-    const { data, error } = await sb.from("weeks").select("week_id,data,updated_at");
-    if (error) return;
-    let changed = false;
-    (data || []).forEach(row => {
-      const remote = normalize(row.data); remote._t = remote._t || Date.parse(row.updated_at) || 0;
-      const local = weeks[row.week_id];
-      if (dirty.has(row.week_id)) return;
-      if (!local || (remote._t || 0) > (local._t || 0)) { weeks[row.week_id] = remote; changed = true; }
-      else if ((local._t || 0) > (remote._t || 0)) pending.add(row.week_id);
-    });
-    // weeks that exist only on this device go up too
-    Object.keys(weeks).forEach(id => { if (hasData(weeks[id]) && !(data || []).some(r => r.week_id === id)) pending.add(id); });
-    savePending();
-    if (changed) { localSaveAll(); render(); }
-    await pushPending();
+  let pulling = false;
+  async function pullAll(manual) {
+    if (!sb || !sbUser || pulling) return;
+    if (!navigator.onLine) { if (manual === true) syncMsg("You're offline. Ticks are saved here and will upload later.", true); return; }
+    pulling = true;
+    try {
+      const { data, error } = await sb.from("weeks").select("week_id,data,updated_at");
+      if (error) { syncMsg(explain(error), true); return; }
+      let changed = false;
+      (data || []).forEach(row => {
+        const remote = normalize(row.data); remote._t = remote._t || Date.parse(row.updated_at) || 0;
+        const local = weeks[row.week_id];
+        if (dirty.has(row.week_id)) return;
+        if (!local || (remote._t || 0) > (local._t || 0)) { weeks[row.week_id] = remote; changed = true; }
+        else if ((local._t || 0) > (remote._t || 0)) pending.add(row.week_id);
+      });
+      Object.keys(weeks).forEach(id => { if (hasData(weeks[id]) && !(data || []).some(r => r.week_id === id)) pending.add(id); });
+      savePending();
+      if (changed) { localSaveAll(); render(); }
+      const ok = await pushPending();
+      if (ok) { lastSync = new Date(); paintSync(); if (manual === true) syncMsg("Synced."); else if ($("syncMsg").classList.contains("err")) syncMsg(""); }
+    } finally { pulling = false; }
   }
   function localSaveAll() {
     try { const all = {}; Object.keys(weeks).forEach(k => { if (hasData(weeks[k])) all[k] = weeks[k]; }); localStorage.setItem(LS_KEY, JSON.stringify(all)); } catch (e) {}
   }
+  function setUser(user) {
+    sbUser = user || null;
+    storageNote = sbUser ? "Saved · synced across your devices" : "Saved on this device only";
+    setStatus(storageNote); paintSync();
+  }
   async function startCloud() {
     if (!window.supabase || !window.supabase.createClient) return;
-    try { sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); }
+    try { sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, flowType: "implicit" } }); }
     catch (e) { sb = null; return; }
+    paintSync();
     const localSave = store.save;
     store.save = async (id, data) => { await localSave(id, data); if (sbUser) { pending.add(id); savePending(); pushPending(); } };
+
+    // finish a sign-in that arrived through the email link
+    const hp = new URLSearchParams(AUTH_URL.hash.replace(/^#/, ""));
+    const qp = new URLSearchParams(AUTH_URL.search);
+    try {
+      if (hp.get("access_token") && hp.get("refresh_token")) {
+        const { error } = await sb.auth.setSession({ access_token: hp.get("access_token"), refresh_token: hp.get("refresh_token") });
+        if (error) syncMsg("That sign-in link didn't work: " + error.message + ". Send a new one.", true);
+        else syncMsg("Signed in. This device is now synced.");
+      } else if (qp.get("code")) {
+        const { error } = await sb.auth.exchangeCodeForSession(qp.get("code"));
+        if (error) syncMsg("That sign-in link didn't work on this device. Send a new link from this device, or enter the code.", true);
+        else syncMsg("Signed in. This device is now synced.");
+      } else if (hp.get("error_description") || qp.get("error_description")) {
+        syncMsg("Sign-in link problem: " + (hp.get("error_description") || qp.get("error_description")).replace(/\+/g, " ") + ". Send a new one.", true);
+      }
+      if (AUTH_URL.search) history.replaceState(null, "", location.pathname + location.hash);
+    } catch (e) {}
+
     sb.auth.onAuthStateChange((event, session) => {
-      sbUser = session ? session.user : null;
-      storageNote = sbUser ? "Saved · synced across your devices" : "Saved on this device only";
-      setStatus(storageNote); paintSync();
-      if (sbUser) pullAll();
+      const was = sbUser && sbUser.id;
+      setUser(session ? session.user : null);
+      if (sbUser && sbUser.id !== was) pullAll();
     });
     const { data } = await sb.auth.getSession();
-    sbUser = data && data.session ? data.session.user : null;
-    if (sbUser) { storageNote = "Saved · synced across your devices"; setStatus(storageNote); pullAll(); }
-    paintSync();
+    setUser(data && data.session ? data.session.user : null);
+    if (sbUser) pullAll();
+
+    let lastEmail = "";
     $("syncForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
       const email = $("syncEmail").value.trim(); if (!email) return;
+      lastEmail = email;
       $("syncSend").disabled = true; syncMsg("Sending…");
       const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
       $("syncSend").disabled = false;
-      if (error) syncMsg(/rate|seconds/i.test(error.message) ? "Too many links sent. Wait a few minutes and try again." : "Couldn't send the link: " + error.message, true);
-      else syncMsg("Check your email and open the link on this device.");
+      if (error) { syncMsg(/rate|seconds|security/i.test(error.message) ? "Too many emails sent. Wait a few minutes and try again." : "Couldn't send the email: " + error.message, true); return; }
+      $("codeForm").hidden = false;
+      syncMsg("Email sent. Open the link on this device, or type the code from the email here.");
     });
+    $("codeForm").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const token = $("syncCode").value.replace(/\s/g, ""); if (!token) return;
+      $("codeSend").disabled = true; syncMsg("Checking…");
+      const { error } = await sb.auth.verifyOtp({ email: lastEmail || $("syncEmail").value.trim(), token, type: "email" });
+      $("codeSend").disabled = false;
+      if (error) syncMsg("That code didn't work. Check it, or send a new email.", true);
+      else { syncMsg("Signed in. This device is now synced."); $("codeForm").hidden = true; }
+    });
+    $("syncNow").addEventListener("click", () => pullAll(true));
     $("syncOutBtn").addEventListener("click", async () => { await sb.auth.signOut(); syncMsg("Signed out on this device. Your ticks stay saved here."); });
-    window.addEventListener("online", pullAll);
+    window.addEventListener("online", () => pullAll());
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pullAll(); });
-    setInterval(() => { if (document.visibilityState === "visible") pullAll(); }, 60000);
+    window.addEventListener("focus", () => pullAll());
+    setInterval(() => { if (document.visibilityState === "visible") pullAll(); }, 30000);
   }
   const LS_KEY = "becoming-tracker-weeks";
   function useLocal(note) {

@@ -247,6 +247,8 @@ td.off .cb { opacity: .45; }
 .synccard b { font-family: var(--f-head); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; font-size: 14px; }
 .synccard p { margin: 6px 0 10px; font-size: 13px; color: var(--muted); max-width: 60ch; }
 .syncrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.loginform { display: flex; flex-direction: column; gap: 8px; max-width: 420px; }
+.loginform input { background: var(--ink); border: 1px solid var(--line); border-radius: 30px; color: var(--fg); padding: 10px 14px; font: inherit; font-size: 14px; }
 .syncrow input { flex: 1 1 220px; min-width: 0; background: var(--ink); border: 1px solid var(--line); border-radius: 30px; color: var(--fg); padding: 10px 14px; font: inherit; font-size: 14px; }
 .synccard button { border: 0; background: var(--lime); color: var(--lime-ink); border-radius: 30px; padding: 10px 16px; font-family: var(--f-head); font-weight: 600; font-size: 13px; letter-spacing: .5px; text-transform: uppercase; }
 .synccard button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
@@ -366,21 +368,21 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   </button>
   <section class="synccard" id="syncCard" hidden>
     <div id="syncOut">
-      <b>Sync across your devices</b>
-      <p>Sign in with your email to see the same week on your phone and laptop. We'll email you a sign-in link; open it on this device.</p>
-      <form id="syncForm" class="syncrow">
-        <input type="email" id="syncEmail" placeholder="you@example.com" autocomplete="email" required aria-label="Email for sign-in link">
-        <button type="submit" id="syncSend">Send sign-in link</button>
-      </form>
-      <form id="codeForm" class="syncrow" hidden style="margin-top:8px">
-        <input type="text" id="syncCode" inputmode="numeric" autocomplete="one-time-code" placeholder="Code from the email" aria-label="Sign-in code from the email">
-        <button type="submit" id="codeSend">Verify code</button>
+      <b>Log in to sync your devices</b>
+      <p>Use the same email and password on your phone and laptop. Your ticks are saved to your account and appear on every device you log in on.</p>
+      <form id="loginForm" class="loginform">
+        <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required aria-label="Email">
+        <input type="password" id="loginPass" placeholder="Password (at least 6 characters)" autocomplete="current-password" minlength="6" required aria-label="Password">
+        <div class="syncrow">
+          <button type="submit" id="loginBtn">Log in</button>
+          <button type="button" id="signupBtn" class="ghost">Create account</button>
+        </div>
       </form>
     </div>
     <div id="syncIn" hidden>
-      <b>Synced</b>
+      <b>Synced · logged in</b>
       <p id="syncWho"></p>
-      <div class="syncrow"><button id="syncNow">Sync now</button><button id="syncOutBtn" class="ghost">Sign out on this device</button></div>
+      <div class="syncrow"><button id="syncNow">Sync now</button><button id="syncOutBtn" class="ghost">Log out on this device</button></div>
     </div>
     <p class="syncmsg" id="syncMsg"></p>
   </section>
@@ -846,11 +848,11 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   const pending = new Set((() => { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch (e) { return []; } })());
   const savePending = () => { try { localStorage.setItem(PENDING_KEY, JSON.stringify([...pending])); } catch (e) {} };
   function syncMsg(t, err) { const el = $("syncMsg"); el.textContent = t || ""; el.classList.toggle("err", !!err); }
-  let lastSync = null;
+  let lastSync = null, cloudWeeks = null;
   function paintSync() {
     $("syncCard").hidden = !sb;
     $("syncOut").hidden = !!sbUser; $("syncIn").hidden = !sbUser;
-    if (sbUser) $("syncWho").textContent = "Signed in as " + (sbUser.email || "you") + "." + (lastSync ? " Last synced " + lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "." : "");
+    if (sbUser) $("syncWho").textContent = "Signed in as " + (sbUser.email || "you") + "." + (lastSync ? " Last synced " + lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "." : "") + (cloudWeeks != null ? " Weeks saved in your account: " + cloudWeeks + "." : "");
   }
   function explain(error) {
     const m = (error && (error.message || "")) + " " + (error && error.code || "");
@@ -866,6 +868,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     const { error } = await sb.from("weeks").upsert(rows, { onConflict: "user_id,week_id" });
     if (error) { syncMsg(explain(error), true); setStatus("Saved on this device. Not synced yet.", true); return false; }
     rows.forEach(r => pending.delete(r.week_id)); savePending();
+    cloudWeeks = Math.max(cloudWeeks || 0, Object.keys(weeks).filter(id => hasData(weeks[id])).length);
     lastSync = new Date(); paintSync(); setStatus(storageNote);
     return true;
   }
@@ -889,6 +892,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       savePending();
       if (changed) { localSaveAll(); render(); }
       const ok = await pushPending();
+      if (ok) { const ids = new Set((data || []).map(r => r.week_id)); Object.keys(weeks).forEach(id => { if (hasData(weeks[id])) ids.add(id); }); cloudWeeks = ids.size; }
       if (ok) { lastSync = new Date(); paintSync(); if (manual === true) syncMsg("Synced."); else if ($("syncMsg").classList.contains("err")) syncMsg(""); }
     } finally { pulling = false; }
   }
@@ -935,26 +939,33 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     setUser(data && data.session ? data.session.user : null);
     if (sbUser) pullAll();
 
-    let lastEmail = "";
-    $("syncForm").addEventListener("submit", async (ev) => {
+    const creds = () => ({ email: $("loginEmail").value.trim(), password: $("loginPass").value });
+    function authError(error) {
+      const m = error.message || "";
+      if (/invalid login|invalid credentials/i.test(m)) return "Wrong email or password. If you haven't created an account yet, tap Create account.";
+      if (/not confirmed/i.test(m)) return "This account still needs email confirmation. Turn off \"Confirm email\" in Supabase (Authentication → Sign In / Providers → Email), then log in again.";
+      if (/already registered|already exists/i.test(m)) return "This email already has an account. Tap Log in instead.";
+      if (/rate|seconds|security/i.test(m)) return "Too many attempts. Wait a minute and try again.";
+      if (/fetch|network/i.test(m)) return "No connection. Check your internet and try again.";
+      return m;
+    }
+    $("loginForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
-      const email = $("syncEmail").value.trim(); if (!email) return;
-      lastEmail = email;
-      $("syncSend").disabled = true; syncMsg("Sending…");
-      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
-      $("syncSend").disabled = false;
-      if (error) { syncMsg(/rate|seconds|security/i.test(error.message) ? "Too many emails sent. Wait a few minutes and try again." : "Couldn't send the email: " + error.message, true); return; }
-      $("codeForm").hidden = false;
-      syncMsg("Email sent. Open the link on this device, or type the code from the email here.");
+      const c = creds(); if (!c.email || c.password.length < 6) { syncMsg("Enter your email and a password of at least 6 characters.", true); return; }
+      $("loginBtn").disabled = true; syncMsg("Logging in…");
+      const { error } = await sb.auth.signInWithPassword(c);
+      $("loginBtn").disabled = false;
+      if (error) syncMsg(authError(error), true); else { $("loginPass").value = ""; syncMsg("Logged in. This device is now synced."); }
     });
-    $("codeForm").addEventListener("submit", async (ev) => {
-      ev.preventDefault();
-      const token = $("syncCode").value.replace(/\s/g, ""); if (!token) return;
-      $("codeSend").disabled = true; syncMsg("Checking…");
-      const { error } = await sb.auth.verifyOtp({ email: lastEmail || $("syncEmail").value.trim(), token, type: "email" });
-      $("codeSend").disabled = false;
-      if (error) syncMsg("That code didn't work. Check it, or send a new email.", true);
-      else { syncMsg("Signed in. This device is now synced."); $("codeForm").hidden = true; }
+    $("signupBtn").addEventListener("click", async () => {
+      const c = creds(); if (!c.email || c.password.length < 6) { syncMsg("Enter your email and a password of at least 6 characters.", true); return; }
+      $("signupBtn").disabled = true; syncMsg("Creating your account…");
+      const { data, error } = await sb.auth.signUp({ ...c, options: { emailRedirectTo: location.origin + location.pathname } });
+      $("signupBtn").disabled = false;
+      if (error) { syncMsg(authError(error), true); return; }
+      if (data && data.session) { $("loginPass").value = ""; syncMsg("Account created. This device is now synced. Log in with the same email and password on your other devices."); }
+      else if (data && data.user && data.user.identities && data.user.identities.length === 0) syncMsg("This email already has an account. Tap Log in instead. If you never set a password, delete the user in Supabase (Authentication → Users) and create the account again.", true);
+      else syncMsg("Account created, but Supabase is asking for email confirmation. Either click the link in the email once, or turn off \"Confirm email\" in Supabase and tap Log in.", true);
     });
     $("syncNow").addEventListener("click", () => pullAll(true));
     $("syncOutBtn").addEventListener("click", async () => { await sb.auth.signOut(); syncMsg("Signed out on this device. Your ticks stay saved here."); });

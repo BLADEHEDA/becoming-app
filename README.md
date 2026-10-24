@@ -6,7 +6,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 
 ## Features
 
-- **Today:** the day's six habits in time order, big tick buttons, "Up next", today's Becoming theme and a box for your pick
+- **Today tab (opens first):** only today's habits in time order, today's progress bar, a link to the full week; ticks sync both ways with the Week grid. The day's habits in time order, big tick buttons, "Up next", today's Becoming theme and a box for your pick
 - **The week:** habits × days grid, score per habit, today's column highlighted
 - **Weekly progress bar:** targets add up to 34 ticks; hitting every target is 100%, extra ticks count as bonus
 - **Clear week** with confirmation and undo

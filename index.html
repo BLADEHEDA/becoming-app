@@ -111,7 +111,7 @@ td.tc { background: #2a3020; }
 .goal { font-family: var(--f-head); font-weight: 600; font-size: 12px; white-space: nowrap; }
 .cb { width: 30px; height: 30px; border-radius: 8px; border: 2px solid #4a4f47; background: transparent; display: inline-grid; place-items: center; transition: background .15s, border-color .15s; }
 .cb svg { opacity: 0; }
-.cb .xmark { display: none; }
+.cb .xmark, .tick .xmark { display: none; }
 .cb.miss { border-color: var(--miss); background: rgba(255, 92, 77, .14); }
 .cb.miss .ck { display: none; }
 .cb.miss .xmark { display: block; opacity: 1; }
@@ -231,6 +231,17 @@ details.act[open] summary::after { content: "–"; }
 tr.dorow .theme { color: var(--lime); }
 td.off .theme { color: var(--muted); }
 td.off .cb { opacity: .45; }
+#viewToday { display: flex; flex-direction: column; gap: 14px; }
+#viewToday[hidden] { display: none; }
+.daybar { height: 12px; margin: 2px 0 12px; }
+.weekmini { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; width: 100%; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; color: var(--fg); }
+.weekmini b { display: block; font-family: var(--f-display); font-size: 30px; line-height: 1; color: var(--lime); font-weight: 400; }
+.weekmini .bar { height: 10px; }
+.wm-go { font-family: var(--f-head); font-weight: 600; font-size: 12px; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); }
+@media (max-width: 560px) {
+  .tabs { order: 3; width: 100%; }
+  .tabs button { flex: 1; padding: 7px 4px; font-size: 12px; }
+}
 /* doing */
 .tagpill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--lime); color: var(--lime); margin-left: 6px; vertical-align: 2px; }
 .tagpill.mt { border-color: var(--muted); color: var(--muted); }
@@ -307,7 +318,8 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       BECOMING
     </div>
     <div class="tabs" role="tablist" aria-label="Sections">
-      <button role="tab" id="tabTracker" aria-selected="true" data-view="tracker">Tracker</button>
+      <button role="tab" id="tabToday" aria-selected="true" data-view="today">Today</button>
+      <button role="tab" id="tabTracker" aria-selected="false" data-view="tracker">Week</button>
       <button role="tab" id="tabBlueprint" aria-selected="false" data-view="blueprint">Becoming</button>
       <button role="tab" id="tabDoing" aria-selected="false" data-view="doing">Doing</button>
     </div>
@@ -321,7 +333,28 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     </div>
   </div>
 
-  <div class="view" id="viewTracker" role="tabpanel" aria-labelledby="tabTracker" style="display:flex;flex-direction:column;gap:18px">
+  <div class="view" id="viewToday" role="tabpanel" aria-labelledby="tabToday">
+  <section class="today" id="today">
+    <div class="today-head">
+      <div>
+        <div class="eyebrow">Today</div>
+        <h2 id="todayName">Today</h2>
+      </div>
+      <div class="today-count"><b id="todayDone">0</b> / <span id="todayDue">6</span> done</div>
+    </div>
+    <div class="bar daybar" role="progressbar" aria-label="Today's progress" aria-valuemin="0" aria-valuemax="100" id="dayBarRole"><i id="dayBar"></i></div>
+    <div class="next" id="nextUp"></div>
+    <div class="tlist" id="tlist"></div>
+  </section>
+  <button class="weekmini" data-view="tracker">
+    <span><span class="eyebrow">This week</span><b id="miniPct">0%</b></span>
+    <span class="bar"><i id="miniBar"></i></span>
+    <span class="wm-go">Open week →</span>
+  </button>
+  <div class="status" id="status2"></div>
+  </div>
+
+  <div class="view" id="viewTracker" role="tabpanel" aria-labelledby="tabTracker" hidden style="display:none;flex-direction:column;gap:18px">
   <section class="hero">
     <div>
       <div class="eyebrow" id="weekRange">Week</div>
@@ -338,17 +371,6 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     </div>
   </section>
 
-  <section class="today" id="today">
-    <div class="today-head">
-      <div>
-        <div class="eyebrow">Today</div>
-        <h2 id="todayName">Today</h2>
-      </div>
-      <div class="today-count"><b id="todayDone">0</b> / <span id="todayDue">6</span> done</div>
-    </div>
-    <div class="next" id="nextUp"></div>
-    <div class="tlist" id="tlist"></div>
-  </section>
 
   <section class="card">
     <div class="weekhead">
@@ -524,7 +546,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
 
   /* ---------- saving ---------- */
   const timers = {};
-  function setStatus(text, warn) { const el = $("status"); el.textContent = text; el.classList.toggle("warn", !!warn); }
+  function setStatus(text, warn) { ["status", "status2"].forEach(id => { const el = $(id); if (el) { el.textContent = text; el.classList.toggle("warn", !!warn); } }); }
   function queueSave(id, delay) {
     dirty.add(id);
     setStatus("Saving…");
@@ -636,9 +658,13 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     $("barRole").setAttribute("aria-valuenow", sc.pct);
     $("progMeta").textContent = `${sc.got} of ${TOTAL} target ticks` + (sc.bonus ? ` · +${sc.bonus} bonus` : "");
 
-    // today
-    $("today").hidden = !isCur;
-    if (isCur) {
+    // today: always the current week, whatever week the Week tab is showing
+    {
+      const w = getWeek(currentWeekId());
+      const ti = todayIdx();
+      const ws = scoreWeek(w);
+      $("miniPct").textContent = ws.pct + "%";
+      $("miniBar").style.width = ws.pct + "%";
       $("todayName").textContent = DAY_FULL[ti].toUpperCase() + " · " + fmt(new Date()).toUpperCase();
       let done = 0, due = 0;
       document.querySelectorAll(".tick").forEach(b => {
@@ -652,6 +678,9 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       });
       $("todayDone").textContent = done;
       $("todayDue").textContent = due;
+      const dp = due ? Math.round(done / due * 100) : 0;
+      $("dayBar").style.width = dp + "%";
+      $("dayBarRole").setAttribute("aria-valuenow", dp);
       $("tsub-sell").innerHTML = `<em>Skill of the day</em> · learn 15 min, then sell<div class="seclinks">${dLink(DOING_DAYS[ti])}</div>`;
       $("tsub-become").innerHTML = `<em>${THEMES[ti].t}</em><div class="seclinks">${secLinks(THEMES[ti].s)}</div>`;
       setVal($("tpick"), w.picks[ti]);
@@ -687,8 +716,10 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   document.addEventListener("click", (ev) => {
     const b = ev.target.closest(".cb, .tick");
     if (!b) return;
-    const w = getWeek(viewWeek);
-    const i = b.dataset.i === "today" ? todayIdx() : +b.dataset.i;
+    const isToday = b.dataset.i === "today";
+    const wid = isToday ? currentWeekId() : viewWeek;
+    const w = getWeek(wid);
+    const i = isToday ? todayIdx() : +b.dataset.i;
     const before = scoreWeek(w).pct;
     const on = !w.ticks[b.dataset.k][i];
     w.ticks[b.dataset.k][i] = on;
@@ -699,18 +730,20 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     else if (dayDone) play("day");
     else play("tick");
     render();
-    queueSave(viewWeek);
+    queueSave(wid);
   });
   document.addEventListener("input", (ev) => {
-    const el = ev.target; const w = getWeek(viewWeek);
+    const el = ev.target;
+    const wid = el.dataset.pick === "today" ? currentWeekId() : viewWeek;
+    const w = getWeek(wid);
     if (el.dataset.pick != null) {
       const i = el.dataset.pick === "today" ? todayIdx() : +el.dataset.pick;
       w.picks[i] = el.value.slice(0, 200);
-      if (el.dataset.pick === "today") setVal($("pick-" + i), w.picks[i]); else if (i === todayIdx()) setVal($("tpick"), w.picks[i]);
+      if (wid === currentWeekId() && i === todayIdx()) { setVal($("pick-" + i), w.picks[i]); setVal($("tpick"), w.picks[i]); }
     } else if (el.id === "wins") w.wins = el.value.slice(0, 4000);
     else if (el.id === "strategy") w.strategy = el.value.slice(0, 4000);
     else return;
-    queueSave(viewWeek, 800);
+    queueSave(wid, 800);
   });
   /* clear week, with an in-page confirmation and undo */
   let undoData = null, undoTimer = null, mode = "ask";
@@ -930,12 +963,12 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   function setHdr() { document.documentElement.style.setProperty("--hdr", document.querySelector(".top").offsetHeight + "px"); }
   function showView(v, opts) {
     if (v === "becoming") v = "blueprint";
-    const views = { tracker: "viewTracker", blueprint: "viewBlueprint", doing: "viewDoing" };
-    const tabs = { tracker: "tabTracker", blueprint: "tabBlueprint", doing: "tabDoing" };
+    const views = { today: "viewToday", tracker: "viewTracker", blueprint: "viewBlueprint", doing: "viewDoing" };
+    const tabs = { today: "tabToday", tracker: "tabTracker", blueprint: "tabBlueprint", doing: "tabDoing" };
     Object.keys(views).forEach(k => { const on = k === v; $(views[k]).hidden = !on; $(tabs[k]).setAttribute("aria-selected", on ? "true" : "false"); });
     $("viewTracker").style.display = v === "tracker" ? "flex" : "none";
     $("weekBtns").style.display = v === "tracker" ? "contents" : "none";
-    try { history.replaceState(null, "", "#" + (v === "blueprint" ? "becoming" : v)); } catch (e) {}
+    try { history.replaceState(null, "", "#" + (v === "blueprint" ? "becoming" : v === "tracker" ? "week" : v)); } catch (e) {}
     setHdr();
     if (!(opts && opts.keepScroll)) window.scrollTo({ top: 0 });
   }
@@ -958,6 +991,8 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     const h = location.hash.slice(1);
     if (h === "blueprint" || h === "becoming") showView("blueprint", { keepScroll: true });
     else if (h === "doing") showView("doing", { keepScroll: true });
+    else if (h === "week" || h === "tracker") showView("tracker", { keepScroll: true });
+    else showView("today", { keepScroll: true });
     render();
     if (!window.claude || typeof window.claude.use !== "function") { useLocal("Saved on this device only"); return; }
     let db = null, user = null;

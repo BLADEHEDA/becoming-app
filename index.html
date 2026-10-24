@@ -229,6 +229,8 @@ details.act[open] summary::after { content: "–"; }
 }
 
 tr.dorow .theme { color: var(--lime); }
+td.off .theme { color: var(--muted); }
+td.off .cb { opacity: .45; }
 /* doing */
 .tagpill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--lime); color: var(--lime); margin-left: 6px; vertical-align: 2px; }
 .tagpill.mt { border-color: var(--muted); color: var(--muted); }
@@ -342,7 +344,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <div class="eyebrow">Today</div>
         <h2 id="todayName">Today</h2>
       </div>
-      <div class="today-count"><b id="todayDone">0</b> / 6 done</div>
+      <div class="today-count"><b id="todayDone">0</b> / <span id="todayDue">6</span> done</div>
     </div>
     <div class="next" id="nextUp"></div>
     <div class="tlist" id="tlist"></div>
@@ -363,7 +365,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <tbody id="gridBody"></tbody>
       </table>
     </div>
-    <div class="legend"><span class="lt"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0F100F" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span> done · <span class="lx"><svg width="9" height="9" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="#FF5C4D" stroke-width="3.6" stroke-linecap="round"/></svg></span> missed (past days left unticked; tap it if you did it after all). Targets add up to 36 ticks a week. Hitting every target is 100%. Extra ticks show as bonus.</div>
+    <div class="legend"><span class="lt"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0F100F" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span> done · <span class="lx"><svg width="9" height="9" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="#FF5C4D" stroke-width="3.6" stroke-linecap="round"/></svg></span> missed (past days left unticked; tap it if you did it after all). Targets add up to 34 ticks a week (Create Content counts 3 shoot days: Mon, Wed, Sat). Hitting every target is 100%. Extra ticks show as bonus.</div>
   </section>
 
   <section class="blocks" id="blocks"></section>
@@ -406,10 +408,11 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     { k: "bible",  n: "Bible Study",    s: "Spiritual alignment & study",           g: "30 min",    t: 7, time: "06:15" },
     { k: "read",   n: "Read Book",      s: "Business, marketing & mindset",         g: "30+ min",   t: 6, time: "20:00" },
     { k: "sell",   n: "Sell Products",  s: "15 min skill of the day, then outreach & lead gen", g: "60 min", t: 5, time: "11:00" },
-    { k: "create", n: "Create Content", s: "Scripts, filming, or editing",          g: "60–90 min", t: 5, time: "09:00" },
+    { k: "create", n: "Create Content", s: "Shoot days: Mon, Wed, Sat",            g: "60–90 min", t: 3, time: "09:00", days: [0, 2, 5] },
     { k: "become", n: "Curated Content · Becoming", s: "Deliberate study from the Becoming blueprint", g: "30 min", t: 6, time: "20:45" }
   ];
   const TOTAL = HABITS.reduce((a, h) => a + h.t, 0);
+  const isSched = (h, i) => !h.days || h.days.includes(i);
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const DAY_FULL = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const THEMES = [
@@ -427,10 +430,10 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   }
   const DOING_DAYS = [
     { n: "02", t: "Copywriting & Email" },
-    { n: "04", t: "Content Creation" },
     { n: "03", t: "Sales Conversations" },
     { n: "02", t: "Copywriting & Email" },
-    { n: "04", t: "Content Creation" },
+    { n: "03", t: "Sales Conversations" },
+    { n: "02", t: "Copywriting & Email" },
     { n: "00", t: "Human Psychology" },
     { n: "01", t: "Offer (revision)" }
   ];
@@ -557,7 +560,10 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       if (hb.k === "sell") tr.className = "dorow";
       let cells = `<td><div class="hn"><span class="num">${r + 1}</span><span class="hname">${hb.n}</span></div><div class="hsub">${hb.s}</div></td><td class="goal">${hb.g}</td>`;
       for (let i = 0; i < 7; i++) {
-        if (hb.k === "sell") {
+        if (hb.k === "create") {
+          const on = isSched(hb, i);
+          cells += `<td data-day="${i}"${on ? "" : ' class="off"'}><div class="theme">${on ? "Shoot day" : "Off"}</div>${on ? `<div class="secs"><button class="seclink" data-dsec="d04"><b>04</b>Content</button></div>` : ""}<button class="cb" data-k="${hb.k}" data-i="${i}" aria-pressed="false" aria-label="${hb.n}, ${DAY_FULL[i]}">${CHECK}</button></td>`;
+        } else if (hb.k === "sell") {
           cells += `<td data-day="${i}"><div class="theme">Skill of the day</div><div class="secs">${dLink(DOING_DAYS[i])}</div><button class="cb" data-k="${hb.k}" data-i="${i}" aria-pressed="false" aria-label="${hb.n}, ${DAY_FULL[i]}">${CHECK}</button></td>`;
         } else if (hb.k === "become") {
           cells += `<td data-day="${i}"><div class="theme">${THEMES[i].t}</div><div class="secs">${secLinks(THEMES[i].s)}</div><button class="cb" data-k="${hb.k}" data-i="${i}" aria-pressed="false" aria-label="${hb.n}, ${DAY_FULL[i]}">${CHECK}</button><input class="pick" id="pick-${i}" data-pick="${i}" placeholder="What I watched" aria-label="Becoming pick for ${DAY_FULL[i]}"></td>`;
@@ -574,7 +580,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     BLOCKS.forEach(b => {
       const div = document.createElement("div");
       div.className = "blk" + (b.hot ? " hot" : "");
-      const items = b.keys.map(k => { const hb = HABITS.find(x => x.k === k); return `<li><b>${hb.time}</b> · ${hb.k === "become" ? "Becoming" : hb.n} (${hb.g})</li>`; }).join("");
+      const items = b.keys.map(k => { const hb = HABITS.find(x => x.k === k); return `<li><b>${hb.time}</b> · ${hb.k === "become" ? "Becoming" : hb.n} (${hb.g}${hb.days ? ", Mon · Wed · Sat" : ""})</li>`; }).join("");
       div.innerHTML = `<div class="bt">${b.t.toUpperCase()}</div><div class="bs">${b.s}</div><ul>${items}</ul>`;
       bl.appendChild(div);
     });
@@ -607,7 +613,8 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     const pastLimit = viewWeek < currentWeekId() ? 7 : (isCur ? todayIdx() : 0);
     document.querySelectorAll(".cb").forEach(b => {
       const i = +b.dataset.i, done = w.ticks[b.dataset.k][i];
-      const miss = !done && i < pastLimit;
+      const hb = HABITS.find(h => h.k === b.dataset.k);
+      const miss = !done && i < pastLimit && isSched(hb, i);
       b.setAttribute("aria-pressed", done ? "true" : "false");
       b.classList.toggle("miss", miss);
       const base = b.getAttribute("aria-label").replace(/ \((done|missed)\)$/, "");
@@ -633,24 +640,28 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     $("today").hidden = !isCur;
     if (isCur) {
       $("todayName").textContent = DAY_FULL[ti].toUpperCase() + " · " + fmt(new Date()).toUpperCase();
-      let done = 0;
+      let done = 0, due = 0;
       document.querySelectorAll(".tick").forEach(b => {
-        const on = w.ticks[b.dataset.k][ti];
-        if (on) done++;
+        const hb = HABITS.find(h => h.k === b.dataset.k);
+        const sched = isSched(hb, ti), on = w.ticks[b.dataset.k][ti];
+        const row = b.closest(".titem");
+        row.hidden = !sched && !on;
+        if (sched || on) { due++; if (on) done++; }
         b.setAttribute("aria-pressed", on ? "true" : "false");
-        b.closest(".titem").classList.toggle("done", on);
+        row.classList.toggle("done", on);
       });
       $("todayDone").textContent = done;
+      $("todayDue").textContent = due;
       $("tsub-sell").innerHTML = `<em>Skill of the day</em> · learn 15 min, then sell<div class="seclinks">${dLink(DOING_DAYS[ti])}</div>`;
       $("tsub-become").innerHTML = `<em>${THEMES[ti].t}</em><div class="seclinks">${secLinks(THEMES[ti].s)}</div>`;
       setVal($("tpick"), w.picks[ti]);
       // up next
       const now = new Date(); const mins = now.getHours() * 60 + now.getMinutes();
       const order = [...HABITS].sort((a, b) => a.time.localeCompare(b.time));
-      const next = order.find(h => !w.ticks[h.k][ti] && (+h.time.slice(0, 2) * 60 + +h.time.slice(3)) >= mins - 30);
-      const pending = order.filter(h => !w.ticks[h.k][ti]);
+      const next = order.find(h => isSched(h, ti) && !w.ticks[h.k][ti] && (+h.time.slice(0, 2) * 60 + +h.time.slice(3)) >= mins - 30);
+      const pending = order.filter(h => isSched(h, ti) && !w.ticks[h.k][ti]);
       document.querySelectorAll(".titem").forEach(r => r.classList.toggle("up", !!next && r.dataset.k === next.k));
-      $("nextUp").innerHTML = done === 6 ? "<b>All six done today.</b> Well done. Rest, then do it again tomorrow."
+      $("nextUp").innerHTML = done >= due ? "<b>Everything done today.</b> Well done. Rest, then do it again tomorrow."
         : next ? `Up next: <b>${next.k === "become" ? "Becoming" : next.n}</b> at <b>${next.time}</b>`
         : `${pending.length} still open today. Never miss twice.`;
     }
@@ -681,7 +692,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     const before = scoreWeek(w).pct;
     const on = !w.ticks[b.dataset.k][i];
     w.ticks[b.dataset.k][i] = on;
-    const dayDone = HABITS.every(h => w.ticks[h.k][i]);
+    const dayDone = HABITS.filter(h => isSched(h, i)).every(h => w.ticks[h.k][i]);
     const after = scoreWeek(w).pct;
     if (!on) play("untick");
     else if (after === 100 && before < 100) play("week");
@@ -836,7 +847,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       <div class="forces">${forces}</div>
       <div class="kick" style="margin-top:16px">The weekly Doing rhythm · learn 15 min in your Sell slot, then execute</div>
       <div class="rhythm">${DOING_DAYS.map((d, i) => `<div class="rday${i === todayIdx() ? " today" : ""}"><small>${DAY_FULL[i]}${i === todayIdx() ? " · today" : ""}</small><b>${d.t}</b><div class="seclinks"><button class="seclink" data-jump="d${d.n}"><b>${d.n}</b>Open skill</button></div></div>`).join("")}</div>
-      <p class="note">Main focus: copywriting and content twice a week, sales conversations once, psychology once, offer revision on Sunday. Funnels (05) and media buying (06) stay here as reference, with the weekly numbers review keeping your ads honest.</p>
+      <p class="note">Your Sell slot rotates: copywriting three days, sales conversations two days, psychology on Saturday and offer revision on Sunday. Content creation has its own slot: you shoot on Monday, Wednesday and Saturday. Funnels (05) and media buying (06) stay here as reference, with the weekly numbers review keeping your ads honest.</p>
       <div class="kick" style="margin-top:16px">The skill stack · how money is made · tap a skill to open it</div>
       <div class="chain">${chain}</div>
     </section>`;

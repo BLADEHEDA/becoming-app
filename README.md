@@ -8,7 +8,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 
 - **Today tab (opens first):** only today's habits in time order, today's progress bar, a link to the full week; ticks sync both ways with the Week grid. The day's habits in time order, big tick buttons, "Up next", today's Becoming theme and a box for your pick
 - **The week:** habits × days grid, score per habit, today's column highlighted
-- **Weekly progress bar:** targets add up to 34 ticks; hitting every target is 100%, extra ticks count as bonus
+- **Weekly progress bar:** targets add up to 40 ticks; hitting every target is 100%, extra ticks count as bonus
 - **Clear week** with confirmation and undo
 - **Past weeks** with their score; a fresh week starts every Monday
 - **Sounds:** click on tick, chime when the day is complete, celebration at 100% (can be switched off)
@@ -23,7 +23,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 |-------|----------------|--------|
 | 06:00 | Affirmations   | 7/7    |
 | 06:15 | Bible Study    | 7/7    |
-| 09:00 | Create Content | 3/7 (shoot days: Mon, Wed, Sat) |
+| 09:00 | Create (shoot Mon · Wed · Sat, copywriting other days) | 7/7 |
 | 11:00 | Sell Products  | 5/7    |
 | 20:00 | Read Book      | 6/7    |
 | 20:45 | Becoming       | 6/7    |

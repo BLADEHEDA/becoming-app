@@ -45,8 +45,8 @@ Mon People & Lives · Tue Design & World · Wed Speech & Style · Thu History & 
 
 Static site, no build step. On Netlify: import this repository, leave the build command empty and the publish directory as the root. Every commit to `main` republishes the site.
 
-## Data
+## Data and sync
 
-Progress is saved in the browser of each device (local storage). Clearing browser data erases it. Syncing between devices is planned.
+Progress is saved on each device first, so the app works offline. Sign in on the Today tab with your email (a sign-in link is sent by Supabase) and your weeks sync across phone and laptop: every change is uploaded, and the app pulls the latest data when it opens or comes back into view. The database (Supabase project `becoming-app`) only lets each account read and write its own rows.
 
 © 2026 Nkwetakem Tabo Bruno. All rights reserved.

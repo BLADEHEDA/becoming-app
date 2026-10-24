@@ -242,6 +242,17 @@ td.off .cb { opacity: .45; }
   .tabs { order: 3; width: 100%; }
   .tabs button { flex: 1; padding: 7px 4px; font-size: 12px; }
 }
+.synccard { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+.synccard[hidden] { display: none; }
+.synccard b { font-family: var(--f-head); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; font-size: 14px; }
+.synccard p { margin: 6px 0 10px; font-size: 13px; color: var(--muted); max-width: 60ch; }
+.syncrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.syncrow input { flex: 1 1 220px; min-width: 0; background: var(--ink); border: 1px solid var(--line); border-radius: 30px; color: var(--fg); padding: 10px 14px; font: inherit; font-size: 14px; }
+.synccard button { border: 0; background: var(--lime); color: var(--lime-ink); border-radius: 30px; padding: 10px 16px; font-family: var(--f-head); font-weight: 600; font-size: 13px; letter-spacing: .5px; text-transform: uppercase; }
+.synccard button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.synccard [hidden] { display: none; }
+.syncmsg { margin: 8px 0 0 !important; color: var(--lime) !important; }
+.syncmsg.err { color: var(--miss) !important; }
 /* doing */
 .tagpill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--lime); color: var(--lime); margin-left: 6px; vertical-align: 2px; }
 .tagpill.mt { border-color: var(--muted); color: var(--muted); }
@@ -351,6 +362,22 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     <span class="bar"><i id="miniBar"></i></span>
     <span class="wm-go">Open week →</span>
   </button>
+  <section class="synccard" id="syncCard" hidden>
+    <div id="syncOut">
+      <b>Sync across your devices</b>
+      <p>Sign in with your email to see the same week on your phone and laptop. We'll email you a sign-in link; open it on this device.</p>
+      <form id="syncForm" class="syncrow">
+        <input type="email" id="syncEmail" placeholder="you@example.com" autocomplete="email" required aria-label="Email for sign-in link">
+        <button type="submit" id="syncSend">Send sign-in link</button>
+      </form>
+    </div>
+    <div id="syncIn" hidden>
+      <b>Synced</b>
+      <p id="syncWho"></p>
+      <button id="syncOutBtn" class="ghost">Sign out on this device</button>
+    </div>
+    <p class="syncmsg" id="syncMsg"></p>
+  </section>
   <div class="status" id="status2"></div>
   </div>
 
@@ -423,6 +450,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   </footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.75.0/dist/umd/supabase.js"></script>
 <script>
 (function () {
   const HABITS = [
@@ -532,6 +560,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       if (Array.isArray(d.picks)) for (let i = 0; i < 7; i++) w.picks[i] = typeof d.picks[i] === "string" ? d.picks[i] : "";
       w.wins = typeof d.wins === "string" ? d.wins : "";
       w.strategy = typeof d.strategy === "string" ? d.strategy : "";
+      if (typeof d._t === "number") w._t = d._t;
     }
     return w;
   }
@@ -548,6 +577,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   const timers = {};
   function setStatus(text, warn) { ["status", "status2"].forEach(id => { const el = $(id); if (el) { el.textContent = text; el.classList.toggle("warn", !!warn); } }); }
   function queueSave(id, delay) {
+    if (weeks[id]) weeks[id]._t = Date.now();
     dirty.add(id);
     setStatus("Saving…");
     clearTimeout(timers[id]);
@@ -795,6 +825,80 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   }, 60000);
 
   /* ---------- storage ---------- */
+
+  /* ---------- cloud sync (website version) ---------- */
+  const SB_URL = "https://rczkwwoindpkdvugkwlg.supabase.co";
+  const SB_KEY = "sb_publishable_WeCyeDUHxOgVtcza_EwCbg_QTzOHST3";
+  const PENDING_KEY = "becoming-pending-sync";
+  let sb = null, sbUser = null;
+  const pending = new Set((() => { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch (e) { return []; } })());
+  const savePending = () => { try { localStorage.setItem(PENDING_KEY, JSON.stringify([...pending])); } catch (e) {} };
+  function syncMsg(t, err) { const el = $("syncMsg"); el.textContent = t || ""; el.classList.toggle("err", !!err); }
+  function paintSync() {
+    $("syncCard").hidden = !sb;
+    $("syncOut").hidden = !!sbUser; $("syncIn").hidden = !sbUser;
+    if (sbUser) $("syncWho").textContent = "Signed in as " + (sbUser.email || "you") + ". Ticks on any device appear here.";
+  }
+  async function pushPending() {
+    if (!sb || !sbUser || !navigator.onLine || !pending.size) return;
+    const rows = [...pending].filter(id => weeks[id]).map(id => ({ user_id: sbUser.id, week_id: id, data: weeks[id], updated_at: new Date(weeks[id]._t || Date.now()).toISOString() }));
+    if (!rows.length) { pending.clear(); savePending(); return; }
+    const { error } = await sb.from("weeks").upsert(rows, { onConflict: "user_id,week_id" });
+    if (error) { setStatus("Saved on this device. Will sync when the connection is back.", true); return; }
+    rows.forEach(r => pending.delete(r.week_id)); savePending();
+    setStatus(storageNote);
+  }
+  async function pullAll() {
+    if (!sb || !sbUser || !navigator.onLine) return;
+    const { data, error } = await sb.from("weeks").select("week_id,data,updated_at");
+    if (error) return;
+    let changed = false;
+    (data || []).forEach(row => {
+      const remote = normalize(row.data); remote._t = remote._t || Date.parse(row.updated_at) || 0;
+      const local = weeks[row.week_id];
+      if (dirty.has(row.week_id)) return;
+      if (!local || (remote._t || 0) > (local._t || 0)) { weeks[row.week_id] = remote; changed = true; }
+      else if ((local._t || 0) > (remote._t || 0)) pending.add(row.week_id);
+    });
+    // weeks that exist only on this device go up too
+    Object.keys(weeks).forEach(id => { if (hasData(weeks[id]) && !(data || []).some(r => r.week_id === id)) pending.add(id); });
+    savePending();
+    if (changed) { localSaveAll(); render(); }
+    await pushPending();
+  }
+  function localSaveAll() {
+    try { const all = {}; Object.keys(weeks).forEach(k => { if (hasData(weeks[k])) all[k] = weeks[k]; }); localStorage.setItem(LS_KEY, JSON.stringify(all)); } catch (e) {}
+  }
+  async function startCloud() {
+    if (!window.supabase || !window.supabase.createClient) return;
+    try { sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); }
+    catch (e) { sb = null; return; }
+    const localSave = store.save;
+    store.save = async (id, data) => { await localSave(id, data); if (sbUser) { pending.add(id); savePending(); pushPending(); } };
+    sb.auth.onAuthStateChange((event, session) => {
+      sbUser = session ? session.user : null;
+      storageNote = sbUser ? "Saved · synced across your devices" : "Saved on this device only";
+      setStatus(storageNote); paintSync();
+      if (sbUser) pullAll();
+    });
+    const { data } = await sb.auth.getSession();
+    sbUser = data && data.session ? data.session.user : null;
+    if (sbUser) { storageNote = "Saved · synced across your devices"; setStatus(storageNote); pullAll(); }
+    paintSync();
+    $("syncForm").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const email = $("syncEmail").value.trim(); if (!email) return;
+      $("syncSend").disabled = true; syncMsg("Sending…");
+      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
+      $("syncSend").disabled = false;
+      if (error) syncMsg(/rate|seconds/i.test(error.message) ? "Too many links sent. Wait a few minutes and try again." : "Couldn't send the link: " + error.message, true);
+      else syncMsg("Check your email and open the link on this device.");
+    });
+    $("syncOutBtn").addEventListener("click", async () => { await sb.auth.signOut(); syncMsg("Signed out on this device. Your ticks stay saved here."); });
+    window.addEventListener("online", pullAll);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pullAll(); });
+    setInterval(() => { if (document.visibilityState === "visible") pullAll(); }, 60000);
+  }
   const LS_KEY = "becoming-tracker-weeks";
   function useLocal(note) {
     storageNote = note;
@@ -994,7 +1098,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     else if (h === "week" || h === "tracker") showView("tracker", { keepScroll: true });
     else showView("today", { keepScroll: true });
     render();
-    if (!window.claude || typeof window.claude.use !== "function") { useLocal("Saved on this device only"); return; }
+    if (!window.claude || typeof window.claude.use !== "function") { useLocal("Saved on this device only"); startCloud(); return; }
     let db = null, user = null;
     try { [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]); } catch (e) {}
     const uid = user ? await user.id() : null;

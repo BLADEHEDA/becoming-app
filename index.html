@@ -306,6 +306,15 @@ tr.abrow .score.hit { color: #DDE0DA; }
 .abtn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line); background: transparent; display: grid; place-items: center; color: var(--muted); }
 .abtn.ok[aria-pressed="true"] { background: #DDE0DA; border-color: #DDE0DA; color: var(--ink); }
 .abtn.no[aria-pressed="true"] { background: rgba(255, 92, 77, .16); border-color: var(--miss); color: var(--miss); }
+.toolgap { flex: 1; }
+.notetools select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; height: 34px; padding: 0 6px; font: inherit; font-size: 13px; }
+.notetools .mic { display: inline-flex; align-items: center; gap: 6px; }
+.notetools .mic[aria-pressed="true"] { background: var(--miss); border-color: var(--miss); color: #fff; animation: pulse 1.2s ease-in-out infinite; }
+.notetools .mic:disabled { opacity: .45; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(255, 92, 77, .25); } }
+.micline { font-size: 13px; color: var(--muted); font-style: italic; min-height: 18px; }
+.micline[hidden] { display: none; }
+#fmtBtn { border-color: var(--lime); color: var(--lime); }
 /* doing */
 .tagpill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--lime); color: var(--lime); margin-left: 6px; vertical-align: 2px; }
 .tagpill.mt { border-color: var(--muted); color: var(--muted); }
@@ -517,7 +526,13 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <button data-cmd="underline" aria-label="Underline"><u>U</u></button>
         <button data-cmd="insertUnorderedList" aria-label="Bullet list">• List</button>
         <button data-cmd="insertOrderedList" aria-label="Numbered list">1. List</button>
+        <span class="toolgap"></span>
+        <button id="micBtn" class="mic" aria-pressed="false" aria-label="Record a voice note"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="micLabel">Record</span></button>
+        <select id="micLang" aria-label="Voice language"><option value="en-US">EN</option><option value="fr-FR">FR</option></select>
+        <button id="fmtBtn" aria-label="Format the note">Format</button>
+        <button id="fmtUndo" hidden aria-label="Undo format">Undo</button>
       </div>
+      <div class="micline" id="micLine" hidden></div>
       <div id="noteBody" class="notebody" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Note" data-ph="Write freely. What would have made today perfect?"></div>
       <div class="notefoot" id="noteState">Visible only today. It stays saved in your week.</div>
     </div>
@@ -882,7 +897,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     $("noteTitle").value = n && n.t ? n.t : NOTE_TITLE;
     $("noteBody").innerHTML = n && n.h ? cleanHtml(n.h) : "";
     $("noteState").textContent = "Visible only today. It stays saved in your week.";
-    noteDirty = false;
+    noteDirty = false; undoHtml = null; $("fmtUndo").hidden = true;
     $("noteVeil").hidden = false;
     document.body.style.overflow = "hidden";
     setTimeout(() => $("noteBody").focus(), 30);
@@ -899,6 +914,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     paintNoteDot();
   }
   function closeNote() {
+    if (recOn) stopRec();
     if (noteDirty) saveNote();
     $("noteVeil").hidden = true;
     document.body.style.overflow = "";
@@ -912,7 +928,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !$("noteVeil").hidden) closeNote(); });
   $("noteTitle").addEventListener("input", () => { noteDirty = true; $("noteState").textContent = "Unsaved changes."; });
   $("noteBody").addEventListener("input", () => { noteDirty = true; $("noteState").textContent = "Unsaved changes."; });
-  document.querySelectorAll(".notetools button").forEach(b => {
+  document.querySelectorAll(".notetools button[data-cmd]").forEach(b => {
     b.addEventListener("mousedown", (ev) => ev.preventDefault());
     b.addEventListener("click", () => { $("noteBody").focus(); document.execCommand(b.dataset.cmd, false, null); noteDirty = true; $("noteState").textContent = "Unsaved changes."; });
   });
@@ -957,6 +973,97 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       setAbstain(currentWeekId(), i, cur === t.dataset.mark ? "none" : t.dataset.mark);
     }
   });
+
+
+  /* ---------- voice note + format ---------- */
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null, recOn = false, undoHtml = null;
+  try { const l = localStorage.getItem("becoming-mic-lang"); if (l) $("micLang").value = l; } catch (e) {}
+  $("micLang").addEventListener("change", () => { try { localStorage.setItem("becoming-mic-lang", $("micLang").value); } catch (e) {} if (recOn) { stopRec(); startRec(); } });
+  function appendText(t) {
+    const body = $("noteBody");
+    const last = body.lastChild;
+    const sep = body.textContent.trim() && !/\s$/.test(body.textContent) ? " " : "";
+    if (last && last.nodeType === 3) last.textContent += sep + t;
+    else if (last && last.nodeType === 1 && !/^(UL|OL)$/.test(last.tagName)) last.appendChild(document.createTextNode(sep + t));
+    else body.appendChild(document.createTextNode(t));
+    noteDirty = true; $("noteState").textContent = "Unsaved changes.";
+  }
+  function startRec() {
+    if (!SR) return;
+    rec = new SR();
+    rec.lang = $("micLang").value; rec.continuous = true; rec.interimResults = true;
+    rec.onresult = (ev) => {
+      let interim = "";
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const r = ev.results[i];
+        if (r.isFinal) appendText(r[0].transcript.trim()); else interim += r[0].transcript;
+      }
+      $("micLine").textContent = interim ? "… " + interim : "Listening…";
+    };
+    rec.onerror = (ev) => {
+      if (ev.error === "not-allowed" || ev.error === "service-not-allowed") { recOn = false; paintMic(); $("micLine").hidden = false; $("micLine").textContent = "Microphone blocked. Allow the microphone for this site in your browser settings, then try again."; }
+      else if (ev.error === "network") { $("micLine").textContent = "Voice typing needs an internet connection."; }
+    };
+    rec.onend = () => { if (recOn) { try { rec.start(); } catch (e) {} } };
+    try { rec.start(); recOn = true; } catch (e) { recOn = false; }
+    paintMic();
+  }
+  function stopRec() { recOn = false; if (rec) { try { rec.stop(); } catch (e) {} } paintMic(); }
+  function paintMic() {
+    $("micBtn").setAttribute("aria-pressed", recOn ? "true" : "false");
+    $("micLabel").textContent = recOn ? "Stop" : "Record";
+    $("micLine").hidden = !recOn && !/blocked|internet/.test($("micLine").textContent);
+    if (recOn) $("micLine").textContent = "Listening… speak freely. Say “new line” or “next point” to break it up.";
+  }
+  if (!SR) { $("micBtn").disabled = true; $("micBtn").title = "Voice typing works in Chrome (Android, Windows, Mac)."; }
+  $("micBtn").addEventListener("click", () => { recOn ? stopRec() : startRec(); });
+
+  // Format: tidy dictated text into clean sentences, paragraphs and bullet points
+  const SPOKEN = [
+    [/\b(new paragraph|nouveau paragraphe)\b/gi, "\n\n"], [/\b(new line|à la ligne|a la ligne|nouvelle ligne)\b/gi, "\n"],
+    [/\b(next point|bullet point|new point|point suivant|nouveau point)\b/gi, "\n• "],
+    [/\s*\b(question mark|point d'interrogation)\b/gi, "?"], [/\s*\b(exclamation mark|exclamation point|point d'exclamation)\b/gi, "!"],
+    [/\s*\b(full stop|period)\b/gi, "."], [/\s*\b(comma|virgule)\b/gi, ","], [/\s*\b(colon|deux points)\b/gi, ":"]
+  ];
+  function tidySentence(t) {
+    t = t.replace(/\s+/g, " ").replace(/\s+([,.!?:;])/g, "$1").replace(/([,.!?:;])(?=[^\s\d])/g, "$1 ").trim();
+    if (!t) return "";
+    t = t.replace(/(^|[.!?]\s+)([a-zà-ÿ])/g, (m, a, b) => a + b.toUpperCase());
+    t = t.replace(/\bi\b/g, "I").replace(/\bi'(m|ll|ve|d)\b/gi, (m, x) => "I'" + x.toLowerCase());
+    t = t.replace(/\b(\w+)( \1\b)+/gi, "$1");
+    if (!/[.!?:]$/.test(t)) t += ".";
+    return t;
+  }
+  function formatNote() {
+    const body = $("noteBody");
+    if (!body.textContent.trim()) return;
+    undoHtml = body.innerHTML;
+    // read the note as lines, keeping existing list items as points
+    const lines = [];
+    body.querySelectorAll("li").forEach(li => { li.textContent = "\n• " + li.textContent + "\n"; });
+    body.querySelectorAll("br").forEach(br => br.replaceWith("\n"));
+    body.querySelectorAll("p, div").forEach(d => d.prepend("\n"));
+    let text = body.textContent;
+    SPOKEN.forEach(([re, rpl]) => { text = text.replace(re, rpl); });
+    text.split(/\n/).forEach(l => lines.push(l));
+    let html = "", list = [];
+    const flush = () => { if (list.length) { html += "<ul>" + list.map(x => `<li>${esc(x)}</li>`).join("") + "</ul>"; list = []; } };
+    let para = [];
+    const flushPara = () => { const t = tidySentence(para.join(" ")); if (t) html += `<p>${esc(t)}</p>`; para = []; };
+    lines.forEach(l => {
+      const t = l.trim();
+      if (!t) { flushPara(); flush(); return; }
+      if (/^•/.test(t)) { flushPara(); const x = tidySentence(t.replace(/^•\s*/, "")); if (x) list.push(x.replace(/\.$/, "")); }
+      else { flush(); para.push(t); }
+    });
+    flushPara(); flush();
+    body.innerHTML = html;
+    noteDirty = true; $("noteState").textContent = "Formatted. Tap Undo to go back, or Save to keep it.";
+    $("fmtUndo").hidden = false;
+  }
+  $("fmtBtn").addEventListener("click", () => { if (recOn) stopRec(); formatNote(); });
+  $("fmtUndo").addEventListener("click", () => { if (undoHtml != null) { $("noteBody").innerHTML = undoHtml; undoHtml = null; $("fmtUndo").hidden = true; noteDirty = true; $("noteState").textContent = "Format undone."; } });
 
   /* ---------- events ---------- */
   document.addEventListener("click", (ev) => {

@@ -279,6 +279,33 @@ td.off .cb { opacity: .45; }
 .notebody:empty::before { content: attr(data-ph); color: var(--muted); }
 .notebody ul, .notebody ol { padding-left: 22px; margin: 6px 0; }
 .notefoot { font-size: 12px; color: var(--muted); }
+tr.abrow td { background: #161816; border-top: 1px solid #5d625a; border-bottom: 1px solid #5d625a; }
+tr.abrow td:first-child { border-left: 1px solid #5d625a; }
+tr.abrow td:last-child { border-right: 1px solid #5d625a; }
+tr.abrow .num { background: transparent; color: #DDE0DA; width: auto; height: auto; }
+tr.abrow .hname { color: #DDE0DA; }
+.acb { width: 30px; height: 30px; border-radius: 8px; border: 2px solid #5d625a; background: transparent; display: inline-grid; place-items: center; color: #DDE0DA; }
+.acb svg, .acb .adash { display: none; grid-area: 1 / 1; }
+.acb[data-state="kept"] { background: #DDE0DA; border-color: #DDE0DA; color: var(--ink); }
+.acb[data-state="kept"] svg:first-child { display: block; }
+.acb[data-state="slip"] { border-color: var(--miss); background: rgba(255, 92, 77, .14); color: var(--miss); }
+.acb[data-state="slip"] svg:nth-child(2) { display: block; }
+.acb[data-state="blank"] .adash { display: block; color: var(--muted); }
+.slipn { color: var(--miss); }
+tr.abrow .minibar i { background: #DDE0DA; box-shadow: none; }
+tr.abrow .score.hit { color: #DDE0DA; }
+.abitem { border-color: #5d625a; margin-top: 8px; position: relative; }
+.abitem::before { content: ""; position: absolute; left: 12px; right: 12px; top: -9px; border-top: 1px dashed var(--line); }
+.abitem.done { border-color: #DDE0DA; }
+.abitem.slipped { border-color: var(--miss); }
+.ashield { color: #DDE0DA; display: grid; place-items: center; }
+.ashield svg { width: 22px; height: 22px; }
+.astats { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; font-size: 12px; color: var(--muted); }
+.astats b { color: #DDE0DA; font-family: var(--f-head); font-weight: 600; letter-spacing: .4px; }
+.abtns { display: flex; gap: 8px; }
+.abtn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line); background: transparent; display: grid; place-items: center; color: var(--muted); }
+.abtn.ok[aria-pressed="true"] { background: #DDE0DA; border-color: #DDE0DA; color: var(--ink); }
+.abtn.no[aria-pressed="true"] { background: rgba(255, 92, 77, .16); border-color: var(--miss); color: var(--miss); }
 /* doing */
 .tagpill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--lime); color: var(--lime); margin-left: 6px; vertical-align: 2px; }
 .tagpill.mt { border-color: var(--muted); color: var(--muted); }
@@ -447,7 +474,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <tbody id="gridBody"></tbody>
       </table>
     </div>
-    <div class="legend"><span class="lt"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0F100F" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span> done · <span class="lx"><svg width="9" height="9" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="#FF5C4D" stroke-width="3.6" stroke-linecap="round"/></svg></span> missed (past days left unticked; tap it if you did it after all). Targets add up to 40 ticks a week. Hitting every target is 100%. Extra ticks show as bonus.</div>
+    <div class="legend"><span class="lt"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0F100F" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span> done · <span class="lx"><svg width="9" height="9" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="#FF5C4D" stroke-width="3.6" stroke-linecap="round"/></svg></span> missed (past days left unticked; tap it if you did it after all). Targets add up to 47 ticks a week. Abstain: tap once for kept, again for slipped (red X), again to clear. Hitting every target is 100%. Extra ticks show as bonus.</div>
   </section>
 
   <section class="blocks" id="blocks"></section>
@@ -513,10 +540,14 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     { k: "read",   n: "Read Book",      s: "Business, marketing & mindset",         g: "30+ min",   t: 6, time: "06:45" },
     { k: "create", n: "Create",         s: "Shoot Mon · Wed · Sat, copywriting the other days", g: "60–90 min", t: 7, time: "09:00" },
     { k: "sell",   n: "Sell",           s: "15 min skill of the day, then outreach, calls & follow-ups", g: "60 min", t: 7, time: "11:00" },
-    { k: "become", n: "Curated Content · Becoming", s: "Deliberate study from the Becoming blueprint", g: "30 min", t: 6, time: "20:45" }
+    { k: "become", n: "Curated Content · Becoming", s: "Deliberate study from the Becoming blueprint", g: "30 min", t: 6, time: "20:45" },
+    { k: "abst",   n: "Abstain",        s: "One day at a time · mark it any time", g: "All day", t: 7, time: null }
   ];
   const TOTAL = HABITS.reduce((a, h) => a + h.t, 0);
   const isSched = (h, i) => !h.days || h.days.includes(i);
+  const SHIELD = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+  const XMARK = '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>';
+  const CK = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const DAY_FULL = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const THEMES = [
@@ -609,7 +640,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
 
   function blankWeek() {
     const ticks = {}; HABITS.forEach(h => ticks[h.k] = [false, false, false, false, false, false, false]);
-    return { ticks, picks: ["", "", "", "", "", "", ""], notes: [null, null, null, null, null, null, null], wins: "", strategy: "" };
+    return { ticks, picks: ["", "", "", "", "", "", ""], notes: [null, null, null, null, null, null, null], slip: [false, false, false, false, false, false, false], wins: "", strategy: "" };
   }
   function normalize(d) {
     const w = blankWeek();
@@ -617,6 +648,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       HABITS.forEach(h => { const a = d.ticks && d.ticks[h.k]; if (Array.isArray(a)) for (let i = 0; i < 7; i++) w.ticks[h.k][i] = !!a[i]; });
       if (Array.isArray(d.picks)) for (let i = 0; i < 7; i++) w.picks[i] = typeof d.picks[i] === "string" ? d.picks[i] : "";
       if (Array.isArray(d.notes)) for (let i = 0; i < 7; i++) { const n = d.notes[i]; w.notes[i] = n && typeof n === "object" ? { t: String(n.t || "").slice(0, 200), h: String(n.h || "").slice(0, 20000) } : null; }
+      if (Array.isArray(d.slip)) for (let i = 0; i < 7; i++) w.slip[i] = !!d.slip[i] && !w.ticks.abst[i];
       w.wins = typeof d.wins === "string" ? d.wins : "";
       w.strategy = typeof d.strategy === "string" ? d.strategy : "";
       if (typeof d._t === "number") w._t = d._t;
@@ -630,7 +662,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     HABITS.forEach(h => { const c = countOf(w, h.k); got += Math.min(c, h.t); bonus += Math.max(0, c - h.t); all += c; });
     return { got, bonus, all, pct: Math.round(got / TOTAL * 100) };
   }
-  const hasData = (w) => scoreWeek(w).all > 0 || w.wins || w.strategy || w.picks.some(Boolean) || (w.notes || []).some(Boolean);
+  const hasData = (w) => scoreWeek(w).all > 0 || w.wins || w.strategy || w.picks.some(Boolean) || (w.notes || []).some(Boolean) || (w.slip || []).some(Boolean);
 
   /* ---------- saving ---------- */
   const timers = {};
@@ -669,9 +701,12 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       const tr = document.createElement("tr");
       if (hb.k === "become") tr.className = "six";
       if (hb.k === "sell") tr.className = "dorow";
-      let cells = `<td><div class="hn"><span class="num">${r + 1}</span><span class="hname">${hb.n}</span></div><div class="hsub">${hb.s}</div></td><td class="goal">${hb.g}</td>`;
+      if (hb.k === "abst") tr.className = "abrow";
+      let cells = `<td><div class="hn"><span class="num">${hb.k === "abst" ? SHIELD : r + 1}</span><span class="hname">${hb.n}</span></div><div class="hsub">${hb.s}</div></td><td class="goal">${hb.g}</td>`;
       for (let i = 0; i < 7; i++) {
-        if (hb.k === "create") {
+        if (hb.k === "abst") {
+          cells += `<td data-day="${i}"><button class="acb" data-i="${i}" data-state="none" aria-label="Abstain, ${DAY_FULL[i]}: not marked. Tap to mark kept, tap again to mark slipped.">${CK}${XMARK}<span class="adash">–</span></button></td>`;
+        } else if (hb.k === "create") {
           cells += `<td data-day="${i}">${createLink(i)}<button class="cb" data-k="${hb.k}" data-i="${i}" aria-pressed="false" aria-label="${hb.n}, ${DAY_FULL[i]}">${CHECK}</button></td>`;
         } else if (hb.k === "sell") {
           cells += `<td data-day="${i}"><div class="theme">Skill of the day</div><div class="secs">${dLink(DOING_DAYS[i])}</div><button class="cb" data-k="${hb.k}" data-i="${i}" aria-pressed="false" aria-label="${hb.n}, ${DAY_FULL[i]}">${CHECK}</button></td>`;
@@ -698,6 +733,11 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     const tl = $("tlist");
     HABITS.forEach(hb => {
       const row = document.createElement("div");
+      if (hb.k === "abst") {
+        row.className = "titem abitem"; row.dataset.k = "abst";
+        row.innerHTML = `<div class="ttime ashield">${SHIELD}</div><div style="min-width:0"><div class="tname">Abstain</div><div class="tsub">One day at a time · mark it any time</div><div class="astats" id="abStats"></div></div><div class="abtns"><button class="abtn ok" data-mark="kept" aria-pressed="false" aria-label="Kept today">${CK}</button><button class="abtn no" data-mark="slip" aria-pressed="false" aria-label="Slipped today">${XMARK}</button></div>`;
+        tl.appendChild(row); return;
+      }
       row.className = "titem"; row.dataset.k = hb.k;
       const pick = hb.k === "become" ? `<input class="tpick" id="tpick" data-pick="today" placeholder="What will you watch, read or listen to?" aria-label="Today's Becoming pick">` : "";
       row.innerHTML = `<div class="ttime">${hb.time}</div><div style="min-width:0"><div class="tname">${hb.k === "become" ? "Becoming" : hb.n}</div><div class="tsub" id="tsub-${hb.k}">${hb.g} · ${hb.s}</div>${pick}</div><button class="tick" data-k="${hb.k}" data-i="today" aria-pressed="false" aria-label="${hb.n}, today">${CHECK}</button>`;
@@ -731,11 +771,18 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       b.setAttribute("aria-label", base + (done ? " (done)" : miss ? " (missed)" : ""));
     });
     for (let i = 0; i < 7; i++) setVal($("pick-" + i), w.picks[i]);
+    document.querySelectorAll(".acb").forEach(b => {
+      const i = +b.dataset.i;
+      const st = w.ticks.abst[i] ? "kept" : w.slip[i] ? "slip" : (i < pastLimit ? "blank" : "none");
+      b.dataset.state = st;
+      b.setAttribute("aria-label", `Abstain, ${DAY_FULL[i]}: ${st === "kept" ? "kept" : st === "slip" ? "slipped" : "not marked"}. Tap to change.`);
+    });
     HABITS.forEach(h => {
       const c = countOf(w, h.k);
       const el = $("score-" + h.k);
       el.innerHTML = `${c}<small> / ${h.t}</small>` + (c > h.t ? ` <small>+${c - h.t}</small>` : "");
       el.classList.toggle("hit", c >= h.t);
+      if (h.k === "abst") { const sl = w.slip.filter(Boolean).length; el.innerHTML = `${c}<small> / 7</small>` + (sl ? ` <small class="slipn">· ${sl} slip${sl > 1 ? "s" : ""}</small>` : ""); }
       $("mb-" + h.k).style.width = Math.min(100, c / h.t * 100) + "%";
     });
     setVal($("wins"), w.wins); setVal($("strategy"), w.strategy);
@@ -764,8 +811,17 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         b.setAttribute("aria-pressed", on ? "true" : "false");
         row.classList.toggle("done", on);
       });
+      const ak = w.ticks.abst[ti], as = w.slip[ti];
+      document.querySelector('.abtn.ok').setAttribute("aria-pressed", ak ? "true" : "false");
+      document.querySelector('.abtn.no').setAttribute("aria-pressed", as ? "true" : "false");
+      document.querySelector('.abitem').classList.toggle("done", ak);
+      document.querySelector('.abitem').classList.toggle("slipped", as);
+      const stt = abstStats();
+      $("abStats").innerHTML = `<span><b>Day ${stt.cur}</b></span><span>best ${stt.best}</span><span>${stt.total} total</span>` + (as ? `<span class="slipn">Slipped today. Write what happened in today's note, then start again tomorrow.</span>` : "");
       $("todayDone").textContent = done;
       $("noteDot").hidden = !w.notes[ti];
+      due += 1; if (w.ticks.abst[ti]) done += 1;
+      $("todayDone").textContent = done;
       $("todayDue").textContent = due;
       const dp = due ? Math.round(done / due * 100) : 0;
       $("dayBar").style.width = dp + "%";
@@ -776,7 +832,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       setVal($("tpick"), w.picks[ti]);
       // up next
       const now = new Date(); const mins = now.getHours() * 60 + now.getMinutes();
-      const order = [...HABITS].sort((a, b) => a.time.localeCompare(b.time));
+      const order = HABITS.filter(h => h.time).sort((a, b) => a.time.localeCompare(b.time));
       const next = order.find(h => isSched(h, ti) && !w.ticks[h.k][ti] && (+h.time.slice(0, 2) * 60 + +h.time.slice(3)) >= mins - 30);
       const pending = order.filter(h => isSched(h, ti) && !w.ticks[h.k][ti]);
       document.querySelectorAll(".titem").forEach(r => r.classList.toggle("up", !!next && r.dataset.k === next.k));
@@ -859,6 +915,47 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   document.querySelectorAll(".notetools button").forEach(b => {
     b.addEventListener("mousedown", (ev) => ev.preventDefault());
     b.addEventListener("click", () => { $("noteBody").focus(); document.execCommand(b.dataset.cmd, false, null); noteDirty = true; $("noteState").textContent = "Unsaved changes."; });
+  });
+
+
+  /* ---------- abstain ---------- */
+  function abstStats() {
+    const ids = Object.keys(weeks).sort();
+    const todayIso = iso(new Date());
+    let cur = 0, best = 0, total = 0;
+    if (!ids.length) return { cur, best, total };
+    let d = fromIso(ids[0]);
+    const end = new Date();
+    while (iso(d) <= todayIso) {
+      const wid = iso(mondayOf(d)), i = (d.getDay() + 6) % 7, w = weeks[wid];
+      const kept = !!(w && w.ticks.abst[i]), slip = !!(w && w.slip[i]);
+      if (kept) { cur++; total++; if (cur > best) best = cur; }
+      else if (iso(d) !== todayIso || slip) cur = 0;
+      d = addDays(d, 1);
+    }
+    return { cur, best, total };
+  }
+  function setAbstain(wid, i, state) {
+    const w = getWeek(wid);
+    w.ticks.abst[i] = state === "kept";
+    w.slip[i] = state === "slip";
+    if (state === "kept") play(HABITS.filter(h => isSched(h, i)).every(h => w.ticks[h.k][i]) ? "day" : "tick");
+    else play("untick");
+    render(); queueSave(wid);
+  }
+  document.addEventListener("click", (ev) => {
+    const g = ev.target.closest(".acb");
+    if (g) {
+      const order = { none: "kept", blank: "kept", kept: "slip", slip: "none" };
+      setAbstain(viewWeek, +g.dataset.i, order[g.dataset.state] || "kept");
+      return;
+    }
+    const t = ev.target.closest(".abtn");
+    if (t) {
+      const w = getWeek(currentWeekId()), i = todayIdx();
+      const cur = w.ticks.abst[i] ? "kept" : w.slip[i] ? "slip" : "none";
+      setAbstain(currentWeekId(), i, cur === t.dataset.mark ? "none" : t.dataset.mark);
+    }
   });
 
   /* ---------- events ---------- */

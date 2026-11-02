@@ -13,7 +13,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 - **Past weeks** with their score; a fresh week starts every Monday
 - **Sounds:** click on tick, chime when the day is complete, celebration at 100% (can be switched off)
 - **Key wins** and **one strategy** notes for each week
-- **Becoming tab:** the full Becoming brochure inside the app (14 sections, A–N; sources by format, action steps, the rules), with a letter bar to jump straight to any section
+- **Becoming tab:** the full Becoming brochure inside the app (13 sections, A–M; sources by format, action steps, the rules), with a letter bar to jump straight to any section
 - **Doing tab:** Volume II inside the app: the skill stack (00 Foundation to 06 Media Buying), sources by format, Hall of Fame, action steps with rep targets, and the machinery (Swipe Vault, Numbers, Reps, Feedback, Seasons, Market, Seller's Code), with its own jump bar
 - **Theme links:** tap a section on today's Becoming theme to open it in the Blueprint
 
@@ -30,7 +30,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 
 ## Becoming themes
 
-Mon People & Lives · Tue Design & World · Wed Style & People · Thu History & Money · Fri Art & Craft · Sat Film & Books · Sun Speech & Presence
+Mon People & Lives · Tue Design & World · Wed Style & People · Thu History & Money · Fri Art & Craft · Sat Film & Cinema · Sun Speech & Presence
 
 ## Files
 

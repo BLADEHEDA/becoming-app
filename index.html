@@ -297,6 +297,7 @@ td.off .cb { opacity: .45; }
 .gauto input:checked + .sw { background: var(--lime); }
 .gauto input:checked + .sw::after { transform: translateX(18px); background: var(--lime-ink); }
 .gauto input:focus-visible + .sw { outline: 2px solid var(--lime); outline-offset: 2px; }
+.gnone { margin: 0; padding: 18px 4px; color: var(--muted); font-size: 14px; }
 .gstrip { margin: 0 0 12px; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--ink); display: flex; flex-direction: column; gap: 4px; }
 .gstrip .gs-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .gstrip .gs-open { background: none; border: 0; color: var(--lime); font: 600 12px var(--f-head); letter-spacing: .5px; text-transform: uppercase; padding: 4px 0; cursor: pointer; }
@@ -456,7 +457,6 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <div class="today-count"><b id="todayDone">0</b> / <span id="todayDue">6</span> done</div>
       </div>
     </div>
-    <div class="gstrip" id="gStrip"></div>
     <div class="bar daybar" role="progressbar" aria-label="Today's progress" aria-valuemin="0" aria-valuemax="100" id="dayBarRole"><i id="dayBar"></i></div>
     <div class="next" id="nextUp"></div>
     <div class="tlist" id="tlist"></div>
@@ -913,7 +913,6 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         : `${pending.length} still open today. Never miss twice.`;
     }
 
-    paintGoalStrip();
     if (!$("goalVeil").hidden && goalMode === "view") paintGoalModal();
 
     // history
@@ -1023,23 +1022,28 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   }
   function paintGoalModal() {
     const L = goalLists(), now = new Date(), mon = mondayOf(now), edit = goalMode === "edit";
-    const sec = (cls, title, hint, kind, list) => `<section class="gsec ${cls}"><h3>${title}</h3><p class="ghint">${hint}</p>${(list || blankGoals()).map((g, i) => goalRow(kind, g, i, edit)).join("")}</section>`;
-    $("goalBody").innerHTML =
+    const sec = (cls, title, hint, kind, list) => {
+      const rows = (list || blankGoals()).map((g, i) => [g, i]).filter(([g]) => edit || g.t.trim());
+      if (!rows.length) return "";
+      return `<section class="gsec ${cls}"><h3>${title}</h3>${edit ? `<p class="ghint">${hint}</p>` : ""}${rows.map(([g, i]) => goalRow(kind, g, i, edit)).join("")}</section>`;
+    };
+    const html =
       sec("month", MONTHS[now.getMonth()].toUpperCase() + " · THIS MONTH", "At most two. What must be true by the end of the month?", "m", L.m) +
-      sec("week", "THIS WEEK · " + fmt(mon).toUpperCase() + " – " + fmt(addDays(mon, 6)).toUpperCase(), "Two steps that move this month's goals forward.", "w", L.w) +
-      sec("day", "TODAY · " + DAY_FULL[todayIdx()].toUpperCase(), "Break this week's goals into what you will do today.", "d", L.d);
+      sec("week", "THIS WEEK · " + fmt(mon).toUpperCase() + " – " + fmt(addDays(mon, 6)).toUpperCase(), "Two steps that move this month's goals forward.", "w", L.w);
+    $("goalBody").innerHTML = html || `<p class="gnone">No goals for this month or week yet. Tap Edit to write them.</p>`;
     $("goalEdit").hidden = edit; $("goalSave").hidden = !edit;
     $("goalAuto").checked = goalAuto;
   }
   function paintGoalBtn() { $("goalBtn").classList.toggle("on", goalAuto); }
   function openGoals(mode) {
     const L = goalLists();
-    goalMode = mode || (goalsSet(L.m) || goalsSet(L.w) || goalsSet(L.d) ? "view" : "edit");
+    goalMode = mode || (goalsSet(L.m) || goalsSet(L.w) ? "view" : "edit");
     paintGoalModal();
     $("goalVeil").hidden = false;
     if (goalMode === "edit") setTimeout(() => { const f = $("gin-m-0"); if (f) f.focus(); }, 30);
     else $("goalClose").focus();
   }
+  function autoGoals() { const L = goalLists(); if ($("goalVeil").hidden && (goalsSet(L.m) || goalsSet(L.w))) openGoals("view"); }
   function closeGoals() { $("goalVeil").hidden = true; }
   function saveGoals() {
     const wid = currentWeekId(), w = getWeek(wid), ti = todayIdx(), now = new Date();
@@ -1050,8 +1054,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     const aid = monthAnchor(now), a = getWeek(aid), mList = read("m", monthGoals());
     if (goalsSet(mList) || monthGoals()) a.mg = { m: monthKey(now), list: mList };
     w.wg = read("w", w.wg);
-    w.dg[ti] = read("d", w.dg[ti]);
-    queueSave(wid); if (aid !== wid) queueSave(aid);
+    queueSave(wid, 0); if (aid !== wid) queueSave(aid, 0);
     goalMode = "view"; paintGoalModal(); render(); play("tick");
   }
   function toggleGoal(kind, i) {
@@ -1063,18 +1066,6 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     queueSave(kind === "m" ? monthAnchor(new Date()) : wid);
     render();
     if (!$("goalVeil").hidden) paintGoalModal();
-  }
-  function paintGoalStrip() {
-    const L = goalLists(), el = $("gStrip");
-    const wk = (L.w || []).filter(g => g.t.trim()), day = (L.d || []).map((g, i) => [g, i]).filter(([g]) => g.t.trim());
-    if (!wk.length && !day.length && !goalsSet(L.m)) {
-      el.innerHTML = `<div class="gs-top"><span class="eyebrow">Goals</span><button class="gs-open" data-gopen="edit">Set your goals →</button></div><div class="gs-week">Two for the month, two for the week, and today's steps toward them.</div>`;
-      return;
-    }
-    el.innerHTML = `<div class="gs-top"><span class="eyebrow">Today's steps</span><button class="gs-open" data-gopen="view">All goals →</button></div>`
-      + (wk.length ? `<div class="gs-week">This week: ${wk.map(g => `<b>${esc(g.t)}</b>`).join(" · ")}</div>` : "")
-      + (day.length ? day.map(([g, i]) => goalRow("d", g, i, false)).join("")
-        : `<div class="gs-week">No steps for today yet. <button class="gs-open" data-gopen="edit">Add today's steps</button></div>`);
   }
   $("goalBtn").addEventListener("click", () => openGoals());
   $("goalEdit").addEventListener("click", () => { goalMode = "edit"; paintGoalModal(); const f = $("gin-m-0"); if (f) f.focus(); });
@@ -1099,7 +1090,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   let hiddenAt = 0;
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") hiddenAt = Date.now();
-    else if (goalAuto && hiddenAt && Date.now() - hiddenAt > 10 * 60 * 1000 && $("goalVeil").hidden && $("noteVeil").hidden) openGoals();
+    else if (goalAuto && hiddenAt && Date.now() - hiddenAt > 10 * 60 * 1000 && $("goalVeil").hidden && $("noteVeil").hidden) autoGoals();
   });
 
   /* ---------- abstain ---------- */
@@ -1645,7 +1636,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     paintSoundBtn();
     paintGoalBtn();
     setHdr();
-    if (goalAuto) setTimeout(() => { if ($("goalVeil").hidden) openGoals(); }, 350);
+    if (goalAuto) setTimeout(autoGoals, 350);
     const h = location.hash.slice(1);
     if (h === "blueprint" || h === "becoming") showView("blueprint", { keepScroll: true });
     else if (h === "doing") showView("doing", { keepScroll: true });

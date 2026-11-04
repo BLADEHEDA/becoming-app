@@ -31,7 +31,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 
 ## Becoming themes
 
-Mon People & Lives · Tue Design & World · Wed Style & World · Thu History & Money · Fri Art & Craft · Sat Film & Cinema · Sun Speech & Presence
+Mon People & Lives · Tue Design & World · Wed Style & World · Thu History & Money · Fri Art & Craft · Sat Film & Series · Sun Speech & Presence
 
 ## Files
 

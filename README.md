@@ -6,7 +6,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 
 ## Features
 
-- **Goals:** a Goals button at the top opens your goals: at most two for the month and two for the week. Tap Edit to write them, then Save. Turn on *Show my goals every time I open the app* and they pop up, read-only, whenever you open the app (also after it has been in the background for 10 minutes); only the goals you wrote are shown. Tick a goal when you hit it. Goals sync with your weeks.
+- **Goals:** a Goals button at the top opens your goals: at most two for the month and two for the week. Tap Edit to write them, then Save. Turn on *Show my goals every time I open the app* and they pop up whenever you open the app, with only a Close button (also after it has been in the background for 10 minutes); only the goals you wrote are shown. Tick a goal when you hit it. Goals sync with your weeks.
 - **Today tab (opens first):** only today's habits in time order, today's progress bar, a link to the full week; ticks sync both ways with the Week grid. The day's habits in time order, big tick buttons, "Up next", today's Becoming theme and a box for your pick
 - **The week:** habits × days grid, score per habit, today's column highlighted
 - **Weekly progress bar:** targets add up to 40 ticks; hitting every target is 100%, extra ticks count as bonus

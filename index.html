@@ -291,6 +291,7 @@ td.off .cb { opacity: .45; }
 .gin:focus { outline: 2px solid var(--lime); outline-offset: 1px; }
 .gnum { flex: none; width: 18px; font-family: var(--f-head); font-weight: 600; color: var(--muted); font-size: 13px; }
 .gauto { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); cursor: pointer; padding-top: 4px; }
+.gauto[hidden] { display: none; }
 .gauto input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .gauto .sw { flex: none; width: 40px; height: 22px; border-radius: 22px; background: var(--line); position: relative; transition: background .2s; }
 .gauto .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--fg); transition: transform .2s; }
@@ -559,7 +560,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <div class="notebtns"><button id="goalEdit">Edit</button><button id="goalSave" class="primary" hidden>Save</button><button id="goalClose">Close</button></div>
       </div>
       <div class="gbody" id="goalBody"></div>
-      <label class="gauto" for="goalAuto"><input type="checkbox" id="goalAuto"><span class="sw" aria-hidden="true"></span><span>Show my goals every time I open the app</span></label>
+      <label class="gauto" id="goalAutoRow" for="goalAuto"><input type="checkbox" id="goalAuto"><span class="sw" aria-hidden="true"></span><span>Show my goals every time I open the app</span></label>
     </div>
   </div>
 
@@ -997,7 +998,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   // Month goals live in the week that contains the 1st of the month; week goals and today's steps live in the current week.
   const GOAL_AUTO = "becoming-goals-auto";
   const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  let goalAuto = false, goalMode = "view";
+  let goalAuto = false, goalMode = "view", goalReminder = false;
   try { goalAuto = localStorage.getItem(GOAL_AUTO) === "on"; } catch (e) {}
   const monthKey = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1);
   const monthAnchor = (d) => iso(mondayOf(new Date(d.getFullYear(), d.getMonth(), 1)));
@@ -1031,19 +1032,21 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       sec("month", MONTHS[now.getMonth()].toUpperCase() + " · THIS MONTH", "At most two. What must be true by the end of the month?", "m", L.m) +
       sec("week", "THIS WEEK · " + fmt(mon).toUpperCase() + " – " + fmt(addDays(mon, 6)).toUpperCase(), "Two steps that move this month's goals forward.", "w", L.w);
     $("goalBody").innerHTML = html || `<p class="gnone">No goals for this month or week yet. Tap Edit to write them.</p>`;
-    $("goalEdit").hidden = edit; $("goalSave").hidden = !edit;
+    $("goalEdit").hidden = edit || goalReminder; $("goalSave").hidden = !edit;
+    $("goalAutoRow").hidden = goalReminder;
     $("goalAuto").checked = goalAuto;
   }
   function paintGoalBtn() { $("goalBtn").classList.toggle("on", goalAuto); }
-  function openGoals(mode) {
+  function openGoals(mode, reminder) {
     const L = goalLists();
+    goalReminder = !!reminder;
     goalMode = mode || (goalsSet(L.m) || goalsSet(L.w) ? "view" : "edit");
     paintGoalModal();
     $("goalVeil").hidden = false;
     if (goalMode === "edit") setTimeout(() => { const f = $("gin-m-0"); if (f) f.focus(); }, 30);
     else $("goalClose").focus();
   }
-  function autoGoals() { const L = goalLists(); if ($("goalVeil").hidden && (goalsSet(L.m) || goalsSet(L.w))) openGoals("view"); }
+  function autoGoals() { const L = goalLists(); if ($("goalVeil").hidden && (goalsSet(L.m) || goalsSet(L.w))) openGoals("view", true); }
   function closeGoals() { $("goalVeil").hidden = true; }
   function saveGoals() {
     const wid = currentWeekId(), w = getWeek(wid), ti = todayIdx(), now = new Date();
@@ -1136,6 +1139,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
 
   /* ---------- voice note + format ---------- */
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const ANDROID = /Android/i.test(navigator.userAgent);
   let rec = null, recOn = false, undoHtml = null;
   try { const l = localStorage.getItem("becoming-mic-lang"); if (l) $("micLang").value = l; } catch (e) {}
   $("micLang").addEventListener("change", () => { try { localStorage.setItem("becoming-mic-lang", $("micLang").value); } catch (e) {} if (recOn) { stopRec(); startRec(); } });
@@ -1151,12 +1155,23 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   function startRec() {
     if (!SR) return;
     rec = new SR();
-    rec.lang = $("micLang").value; rec.continuous = true; rec.interimResults = true;
+    // Chrome on Android repeats earlier results when listening continuously, which duplicated sentences.
+    // There, listen one phrase at a time (it restarts by itself), and on every device add each final result only once.
+    rec.lang = $("micLang").value; rec.continuous = !ANDROID; rec.interimResults = true; rec.maxAlternatives = 1;
+    let sess = { seen: new Set(), text: "" };
+    rec.onstart = () => { sess = { seen: new Set(), text: "" }; };
     rec.onresult = (ev) => {
       let interim = "";
-      for (let i = ev.resultIndex; i < ev.results.length; i++) {
-        const r = ev.results[i];
-        if (r.isFinal) appendText(r[0].transcript.trim()); else interim += r[0].transcript;
+      for (let i = 0; i < ev.results.length; i++) {
+        const r = ev.results[i], t = r[0].transcript.trim();
+        if (!r.isFinal) { interim += r[0].transcript; continue; }
+        if (!t || sess.seen.has(i)) continue;
+        sess.seen.add(i);
+        const said = sess.text.toLowerCase(), low = t.toLowerCase();
+        let add = t;
+        if (said && low.startsWith(said)) add = t.slice(sess.text.length).trim();   // result repeats what was already written
+        else if (said && said.endsWith(low)) add = "";                             // exact repeat of the last phrase
+        if (add) { appendText(add); sess.text = (sess.text + " " + add).trim(); }
       }
       $("micLine").textContent = interim ? "… " + interim : "Listening…";
     };

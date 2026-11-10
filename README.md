@@ -6,6 +6,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 
 ## Features
 
+- **Today's selection:** on each day, every scheduled Becoming section recommends two of its channels (not videos), shown on the Today tab and highlighted in the section on the Becoming tab. Each section rotates through its whole list in order, two at a time, one step each time it comes up on the schedule, whether or not you watched; no channel repeats until the rest have had a turn. The selection is worked out from the date, so it stays the same all day and on every device, and new channels join the rotation automatically. On Art days it also names two of the three music genres (classical, jazz, blues), rotating the same way.
 - **Goals:** a Goals button at the top opens your goals: at most two for the month and two for the week. Tap Edit to write them, then Save. Turn on *Show my goals every time I open the app* and they pop up whenever you open the app, with only a Close button (also after it has been in the background for 10 minutes); only the goals you wrote are shown. Tick a goal when you hit it. Goals sync with your weeks.
 - **Today tab (opens first):** only today's habits in time order, today's progress bar, a link to the full week; ticks sync both ways with the Week grid. The day's habits in time order, big tick buttons, "Up next", today's Becoming theme and a box for your pick
 - **The week:** habits × days grid, score per habit, today's column highlighted

@@ -1031,8 +1031,8 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       $("tsub-create").innerHTML = (CREATE_DAYS[ti] === "shoot" ? `<em>Shoot day</em> · film your videos, edit the same day` : `<em>Copywriting</em> · write emails, ad copy, captions or scripts`) + `<div class="seclinks">${CREATE_DAYS[ti] === "shoot" ? '<button class="seclink" data-dsec="d04"><b>04</b>Content Creation</button>' : '<button class="seclink" data-dsec="d02"><b>02</b>Copywriting</button>'}</div>`;
       const TT = todayTasks(new Date());
       $("tsub-sell").innerHTML = `<em>Skill of the day</em> · learn 15 min, then sell<div class="seclinks">${dLink(DOING_DAYS[ti])}</div>`
-        + `<div class="tasks">${taskLine("Today", TT.launch.join(" "))}${TT.sell ? taskLine("This week", TT.sell) : ""}${TT.review ? taskLine("Sunday", "30-minute review of the tracker. Repeat what made money, fix or drop what didn't.") : ""}</div>`;
-      if (TT.create) $("tsub-create").innerHTML += `<div class="tasks">${taskLine("This week", TT.create)}</div>`;
+        + `<div class="tasks">${TT.sell.map(t => taskLine("Today", t)).join("")}</div>`;
+      $("tsub-create").innerHTML += `<div class="tasks">${taskLine("Today", TT.create)}</div>`;
       $("tsub-aff").innerHTML = `<div class="tasks">${taskLine("Today", "Rewrite the goal card 5–10 times, read the dream, visualise it.")}</div><div class="aff-card">${esc(GOAL_CARD)}</div>`;
 
       $("tsub-become").innerHTML = `<em>${THEMES[ti].t}</em><div class="seclinks">${secLinks(THEMES[ti].s)}</div>${todaySelection()}`;
@@ -1727,46 +1727,63 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
 
   /* ---------- Building · Volume III: the dream and the master plan ---------- */
   const GOAL_CARD = "I am so happy and grateful now that I am a successful internet entrepreneur who travels the world freely, earns from multiple sources of income, and positively impacts the lives of millions.";
-  // December 2026 launches: ads every 3 days, rotating groups A, B, C. Add the January and February launches here once those calendars are built.
-  const LAUNCHES = [["2026-12-01", "A"], ["2026-12-04", "B"], ["2026-12-07", "C"], ["2026-12-10", "A"], ["2026-12-13", "B"], ["2026-12-16", "C"], ["2026-12-19", "A"], ["2026-12-22", "B"], ["2026-12-25", "C"], ["2026-12-28", "A"]];
+  /* ---------- the daily plan: works out what to do today, so the day only shows today's tasks ----------
+     Launches: December follows the brochure calendar (10 launches, every 3 days). Every later month spreads its
+     launch count evenly across the month and keeps rotating the groups A, B, C, so new months build themselves.
+     Dated tasks (DAY_PLAN) break the plan's background work into one task on one day. */
+  const LAUNCHES_PER_MONTH = { "2027-01": 12, "2027-02": 15 };   // months not listed after February: 15
+  const LAUNCHES = (() => {
+    const out = [[1, "A"], [4, "B"], [7, "C"], [10, "A"], [13, "B"], [16, "C"], [19, "A"], [22, "B"], [25, "C"], [28, "A"]].map(([d, g]) => ["2026-12-" + pad(d), g]);
+    let gi = 1;   // December ended on A, so January starts with B
+    for (let m = 0; m < 24; m++) {
+      const y = 2027 + Math.floor(m / 12), mo = m % 12, days = new Date(y, mo + 1, 0).getDate();
+      const n = LAUNCHES_PER_MONTH[y + "-" + pad(mo + 1)] || 15;
+      for (let i = 0; i < n; i++) {
+        const d = 1 + Math.round(i * days / n);
+        out.push([y + "-" + pad(mo + 1) + "-" + pad(d), "ABC"[gi % 3]]); gi++;
+      }
+    }
+    return out;
+  })();
   const LSTEP = ["Run ads", "Orientation", "Follow-up 1", "Final follow-up & close"];
-  const MONTH_PLAN = {
-    "2026-11": { t: "Now: about 350,000 FCFA a month", n: "Next: 10 launches in December" },
-    "2026-12": { t: "December: build the machine", n: "10 launches · target ~500,000 FCFA net" },
-    "2027-01": { t: "January: turn on extra income", n: "12 launches · target ~750,000 FCFA net" },
-    "2027-02": { t: "February: scale", n: "15 launches · target ~1,000,000 FCFA net" }
-  };
-  const BG_TASKS = [
-    ["2026-11-01", "2026-11-30", "Before 1 December: create Group C. Set the done-for-you price and what it includes. Record the done-for-you pitch video. Set up the launch tracker. Prepare the new ad creative."],
-    ["2026-12-01", "2026-12-06", "Start the new-message test on campaign 2, with its own pre-filled WhatsApp message."],
-    ["2026-12-07", "2026-12-13", "Sort past buyers into three segments: Alibaba only; Alibaba + Pinduoduo; all three."],
-    ["2026-12-14", "2026-12-20", "Write the follow-up messages that move Alibaba buyers to Pinduoduo."],
-    ["2026-12-21", "2026-12-31", "Write the follow-up messages that move Pinduoduo buyers to Facebook ads. Set up the email tool so follow-up goes live in January."]
-  ];
-  // This week's plan tasks, split by the habit they belong to
-  const WEEK_TASKS = [
-    ["2026-11-01", "2026-11-30", { create: "Prepare the new ad creative and record the done-for-you pitch video.", sell: "Set the done-for-you price and what it includes. Create Group C. Set up the launch tracker." }],
-    ["2026-12-01", "2026-12-06", { sell: "Start the new-message test on campaign 2, with its own pre-filled WhatsApp message." }],
-    ["2026-12-07", "2026-12-13", { sell: "Sort past buyers into three segments: Alibaba only; Alibaba + Pinduoduo; all three." }],
-    ["2026-12-14", "2026-12-20", { copy: "Write the follow-up messages that move Alibaba buyers to Pinduoduo." }],
-    ["2026-12-21", "2026-12-31", { copy: "Write the follow-up messages that move Pinduoduo buyers to Facebook ads.", sell: "Set up the email tool so follow-up goes live in January." }]
-  ];
   const STEP_TASK = [
-    (g) => `Run ads for Group ${g} (about 14,000 FCFA, turned off when the budget is reached).`,
+    (g) => `Run ads for Group ${g}: about 14,000 FCFA, turned off when the budget is reached.`,
     (g) => `Run the Group ${g} orientation, with the done-for-you pitch.`,
-    (g) => `Follow up Group ${g}: those who attended.`,
-    (g) => `Final follow-up and close for Group ${g}. Pay Facebook from the sales.`
+    (g) => `Follow up Group ${g}: message everyone who attended the orientation.`,
+    (g) => `Final follow-up and close for Group ${g}. Pay Facebook from the sales, then fill in the tracker for this launch.`
   ];
-  function todayTasks(date) {
-    const key = dayKey(date), wt = (WEEK_TASKS.find(([a, b]) => key >= a && key <= b) || [, , {}])[2];
-    const launch = launchTasks(date).map(x => STEP_TASK[x.k](x.g));
-    if (!launch.length && key < LAUNCHES[0][0]) launch.push("Run today's step of your current launch.");
-    else if (!launch.length && key > dayKey(addDays(fromIso(LAUNCHES[LAUNCHES.length - 1][0]), 3))) launch.push("No launch calendar for this month yet: build it with the same 3-day rhythm.");
-    else if (!launch.length) launch.push("No launch step today. Prepare the next launch.");
-    const shoot = CREATE_DAYS[(date.getDay() + 6) % 7] === "shoot";
-    return { launch, create: wt.create || (!shoot ? wt.copy : ""), sell: wt.sell, review: date.getDay() === 0 };
-  }
-  const taskLine = (label, text) => `<div class="task"><b>${label}</b><span>${text}</span></div>`;
+  const DAY_PLAN = {
+    "2026-11-18": { create: "Write ad script 1 for traders and boutique owners: hook in the first 3 seconds, their pain, their hope, why you, a filter line, and a call to message on WhatsApp." },
+    "2026-11-19": { create: "Write ad script 2 for salaried workers, same structure." },
+    "2026-11-20": { create: "Write ad script 3 for online vendors, same structure." },
+    "2026-11-21": { create: "Shoot the three new ad scripts. Send the footage to your editor." },
+    "2026-11-22": { create: "Write the done-for-you pitch: “Some of you don't have the time or courage. What if I did it for you?”" },
+    "2026-11-23": { create: "Record the done-for-you pitch video. Send it to your editor." },
+    "2026-11-24": { create: "Write a unique pre-filled WhatsApp message for each new ad, so you can tell which ad each lead came from." },
+    "2026-11-25": { create: "Review the edited ads and the pitch video. Send your fixes to the editor." },
+    "2026-11-26": { sell: "Add the done-for-you pitch video to the course videos and the orientation." },
+    "2026-11-28": { sell: "Set up campaign 2 in Ads Manager with the new ads and their pre-filled WhatsApp messages. Leave it ready for 1 December." },
+    "2026-12-01": { sell: "Switch on campaign 2 (the new message) next to campaign 1." },
+    "2026-12-07": { sell: "Export your list of past buyers and tag everyone who bought only the Alibaba course." },
+    "2026-12-08": { sell: "Tag the buyers who took Alibaba and Pinduoduo." },
+    "2026-12-09": { sell: "Tag the buyers who took all three courses. Your three segments are ready." },
+    "2026-12-15": { create: "Write follow-up 1 for Alibaba-only buyers, moving them to the Pinduoduo course." },
+    "2026-12-17": { create: "Write follow-up 2 for Alibaba-only buyers." },
+    "2026-12-18": { create: "Write follow-up 3 for Alibaba-only buyers, and its WhatsApp broadcast version." },
+    "2026-12-22": { create: "Write follow-up 1 for Pinduoduo buyers, moving them to the Facebook ads course." },
+    "2026-12-24": { create: "Write follow-up 2 for Pinduoduo buyers." },
+    "2026-12-25": { create: "Write follow-up 3 for Pinduoduo buyers, and its WhatsApp broadcast version.", sell: "This is the optional Christmas launch: run it or skip it, your call." },
+    "2026-12-28": { sell: "Set up the email tool and load your three buyer segments." },
+    "2026-12-29": { sell: "Load the follow-up messages into the email tool, scheduled to start in January." },
+    "2027-01-04": { sell: "Switch on the follow-up offers to your segmented buyers, by email and WhatsApp broadcast." },
+    "2027-01-05": { sell: "Compare money per joiner for campaign 1 and campaign 2 in the tracker. Move more budget to the winner." },
+    "2027-02-02": { create: "Write the exportation back-end offer: what it includes, the price, and the follow-up message to past buyers." },
+    "2027-02-09": { sell: "Send the exportation offer to your past buyers." }
+  };
+  const DEFAULT_CREATE = {
+    shoot: "Shoot your talking-head videos for TikTok. Send the footage to your editor.",
+    copy: "Write one new ad hook for campaign 2 and the captions for your next videos."
+  };
   const dayKey = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   function launchTasks(date) {
     const t = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -1774,33 +1791,16 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     LAUNCHES.forEach(([d, g]) => { const k = Math.round((t - fromIso(d)) / 864e5); if (k >= 0 && k < 4) out.push({ step: LSTEP[k], g, k }); });
     return out.sort((a, b) => a.k - b.k);
   }
-  function phaseLabel(date) {
-    const k = date.getFullYear() * 12 + date.getMonth();
-    if (k <= 2027 * 12 + 1) return "Phase 1 · Plan A + learning";
-    return "Phase 2 · grow and systemise importation, once Gate 1 is passed";
+  function todayTasks(date) {
+    const key = dayKey(date), plan = DAY_PLAN[key] || {}, wd = (date.getDay() + 6) % 7;
+    const sell = key < LAUNCHES[0][0] ? ["Run today's step of your current launch: ads, orientation, follow-up or close."] : launchTasks(date).map(x => STEP_TASK[x.k](x.g));
+    if (plan.sell) sell.push(plan.sell);
+    if (date.getDay() === 0) sell.push("30-minute review of the tracker: repeat what made money, fix or drop what didn't.");
+    if (date.getDate() === new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()) sell.push("Month review: compare this month's profit with the target.");
+    if (!sell.length) sell.push("No launch step today. Message the leads who didn't buy yet.");
+    return { create: plan.create || DEFAULT_CREATE[CREATE_DAYS[wd]], sell };
   }
-  function nextGate(date) {
-    const k = date.getFullYear() * 12 + date.getMonth();
-    return k <= 2027 * 12 + 1 ? "Gate 1: two months in a row at about 750,000 FCFA net." : "Check the gates in Part 07.";
-  }
-  function buildToday() {
-    const now = new Date(), ti = todayIdx(), key = dayKey(now), mk = key.slice(0, 7);
-    const mp = MONTH_PLAN[mk], tasks = launchTasks(now);
-    const bg = BG_TASKS.find(([a, b]) => key >= a && key <= b);
-    const lastLaunch = LAUNCHES.length ? LAUNCHES[LAUNCHES.length - 1][0] : "";
-    const now_ = [];
-    if (mp) now_.push(["This month", `<b>${esc(mp.t)}</b> · ${esc(mp.n)}`]);
-    if (tasks.length) now_.push(["Launch task", tasks.map(x => `${x.step}: <span class="lg lg${x.g}">Group ${x.g}</span>`).join(" · ")]);
-    else if (lastLaunch && key > dayKey(addDays(fromIso(lastLaunch), 3))) now_.push(["Launch task", "No launch calendar for this month yet. Build it with the same 3-day rhythm (Part 05)."]);
-    else now_.push(["Launch task", key < LAUNCHES[0][0] ? "Keep your current launches running. The new 3-group calendar starts Tuesday 1 December with Group A." : "Rest day between launches. Prepare the next one."]);
-    if (bg) now_.push(["This week", esc(bg[2])]);
-    const next_ = [["Phase", esc(phaseLabel(now))], ["Next gate", esc(nextGate(now))], ["Plan B today", "Learning only: at most 1–2 hours, spending no money."]];
-    const lane = (cls, title, rows) => `<div class="bc-lane ${cls}"><div class="bc-lt">${title}</div>${rows.map(([a, b]) => `<div class="bc-row"><span>${a}</span><div>${b}</div></div>`).join("")}</div>`;
-    const extra = ti === 6 ? `<div class="bc-sun"><b>Sunday review</b> · 30 minutes on the tracker. Repeat what made money, fix or drop what didn't.</div>`
-      : key.endsWith("-12-31") ? `<div class="bc-sun"><b>Month review</b> · review December and build the January calendar.</div>` : "";
-    return `<div class="bc-top"><span class="bc-eye">The bridge · today → tomorrow</span><button class="bc-open" data-view="building">Open plan →</button></div>
-      <div class="bc-lanes">${lane("now", "Today · build the business you have", now_)}${lane("next", "Tomorrow · build the business that goes global", next_)}</div>${extra}`;
-  }
+  const taskLine = (label, text) => `<div class="task"><b>${label}</b><span>${text}</span></div>`;
 
   const BT = (head, rows, w) => `<div class="btab"><table><tr>${head.map((h, i) => `<th${w && w[i] ? ` style="width:${w[i]}"` : ""}>${h}</th>`).join("")}</tr>${rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</table></div>`;
   const BL = (items) => `<ul class="blist">${items.map(x => `<li>${x}</li>`).join("")}</ul>`;
@@ -1857,7 +1857,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     { id: "b08", num: "08", word: "Code", title: "RULES THAT KEEP ME FOCUSED", lead: "",
       body: () => `<ol class="code">${["<b>Plan A comes first.</b> From March 2027, or once Plan A reaches about 750,000 FCFA a month, Plan B may run small tests with a fixed budget. Full building starts only at Gate 4.", "<b>One new business at a time.</b> No new venture starts until the current one is running or has been dropped.", "<b>Plan B gets at most 1–2 hours a day</b> during Phase 1, and it spends nothing beyond the small-test budget until Gate 4.", "<b>Change one thing at a time.</b> Price, message, offer: test them separately so you know what worked.", "<b>Track every launch.</b> If it isn't in the tracker, it didn't happen. Decide from numbers, not feelings.", "<b>Every new idea goes on a list, not into action.</b> Review the list once a month against the four Plan B tests: a product not my time, sells beyond Cameroon, runs without me, uses my skills."].map(r => `<li>${r}</li>`).join("")}</ol>` },
     { id: "b09", num: "09", word: "Ledger", title: "LAUNCH TRACKER: DECEMBER 2026", lead: "Fill in after each launch closes. Profit = revenue minus ad spend. Copy this page for January and February.",
-      body: () => BT(["#", "Group", "Ads date", "Columns to fill in"], LAUNCHES.map(([d, g], i) => [String(i + 1), `<span class="lg lg${g}">${g}</span>`, fromIso(d).getDate() + " Dec", "Ad spend · Joiners · Course buyers · Upsells · DFY · Revenue · Profit"]), ["8%", "12%", "16%"])
+      body: () => BT(["#", "Group", "Ads date", "Columns to fill in"], LAUNCHES.filter(([d]) => d.startsWith("2026-12")).map(([d, g], i) => [String(i + 1), `<span class="lg lg${g}">${g}</span>`, fromIso(d).getDate() + " Dec", "Ad spend · Joiners · Course buyers · Upsells · DFY · Revenue · Profit"]), ["8%", "12%", "16%"])
         + `<p class="note">Also note for each launch which ad message brought the joiners (campaign 1 or 2), so you can compare money per joiner. Every month, also note what you saved for Plan B, the total saved so far, and the savings target (Part 07). The tracker itself lives in the brochure, on paper.</p>` },
     { id: "b10", num: "10", word: "Next", title: "OPEN DECISIONS AND NEXT TASKS", lead: "",
       body: () => BT(["Item", "Status"], [["<b>Done-for-you offer:</b> what it includes, the price (flat fee or a percentage of order value with a minimum), and how many clients a month Bruno can handle", "To decide before 1 December"], ["<b>Freedom number:</b> the monthly income that would fund the dream lifestyle", "To decide; becomes the long-term income target"], ["<b>New ad scripts:</b> 2–3 scripts for the new audiences, to shoot in the studio and test on campaign 2", "Next task (see the appendix)"], ["<b>Plan B savings target:</b> the amounts for the China trip, the US setup, first stock and first ad tests (Part 07, the gates)", "To decide; tracked monthly from December"], ["<b>Plan B test budget:</b> the fixed monthly amount for small tests once Gate 2 is passed", "To decide before March 2027"], ["<b>Christmas launch</b> (Group C, 25–27 December): keep or skip", "To decide"], ["<b>January and February calendars</b> using the same 3-day rhythm (12 and 15 launches)", "To build at the end of December"], ["<b>Plan B model:</b> confirm the e-commerce brand over digital products or affiliate marketing", "To confirm after Plan A is stable"], ["<b>Shopwise joint venture:</b> partner roles, equity and investment terms", "On hold until Plan A is running"]], ["64%"]) },
@@ -1880,7 +1880,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       <div class="kick" style="margin-top:16px">My dream family</div>
       ${BQ("I am blessed with a feminine, loving, supportive and caring wife, and three good-looking, intelligent and ambitious children, both sons and daughters. They grow up in a stable home in whichever country we choose, and they spend their holidays with their grandparents in Cameroon. I am deeply close to my parents and siblings. I keep a small, loyal circle of friends around the world, and I meet them wherever they are.")}
       <div class="kick" style="margin-top:16px">How it comes together each day</div>
-      <p class="note">The Today tab carries the plan into the day: the goal card in the morning, the launch task in your Sell slot, this week's background task, the month's Plan A target, and the Sunday review. Becoming shapes the man, Doing builds the skill, and Building points both at the dream.</p>
+      <p class="note">The Today tab turns this plan into today's tasks: the goal card under Affirmations, today's writing or shooting under Create, and today's launch steps and plan tasks under Sell. The launch calendar continues by itself after December, rotating Groups A, B and C. Becoming shapes the man, Doing builds the skill, and Building points both at the dream.</p>
     </section>`;
     BUILD.forEach(s => {
       html += `<section class="bpsec" id="sec-${s.id}" data-rail="${s.id}">

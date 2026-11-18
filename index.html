@@ -27,6 +27,7 @@
   --lime-ink: #0F100F;
   --warn: #FF8A5C;
   --miss: #FF5C4D;
+  --build: #FF4D52;
   --f-display: "Bebas Neue", "Oswald", Impact, sans-serif;
   --f-head: "Oswald", "Arial Narrow", sans-serif;
   --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -206,6 +207,51 @@ details.act[open] summary::after { content: "–"; }
 .rday.today { border-color: var(--lime); }
 .rday small { display: block; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .rday b { font-family: var(--f-head); font-weight: 600; font-size: 14px; text-transform: uppercase; }
+.buildcard { margin: 0 0 12px; border-radius: 16px; padding: 10px 12px; background: var(--ink); border: 1px solid var(--line); border-left: 4px solid var(--build); display: flex; flex-direction: column; gap: 8px; }
+.bc-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.bc-eye { font-family: var(--f-head); font-weight: 600; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--build); }
+.bc-open { background: none; border: 0; padding: 4px 0; color: var(--muted); font: 600 11px var(--f-head); letter-spacing: .6px; text-transform: uppercase; cursor: pointer; }
+.bc-open:hover, .bc-open:focus-visible { color: var(--fg); }
+.bc-month { display: flex; flex-direction: column; gap: 1px; }
+.bc-month b { font-family: var(--f-display); font-weight: 400; font-size: 21px; line-height: 1; letter-spacing: .5px; }
+.bc-month span { font-size: 12.5px; color: var(--muted); }
+.bc-phase { font-size: 11px; color: var(--muted); letter-spacing: .3px; }
+.bc-rows { display: flex; flex-direction: column; }
+.bc-row { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 5px 0; border-top: 1px solid var(--line); font-size: 12.5px; line-height: 1.4; }
+.bc-row > span { font-family: var(--f-head); font-weight: 600; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.bc-row > div { min-width: 0; }
+.lg { display: inline-block; font-family: var(--f-head); font-weight: 700; font-size: 10.5px; letter-spacing: .6px; padding: 1px 7px; border-radius: 6px; }
+.lgA { background: var(--build); color: #fff; }
+.lgB { background: var(--fg); color: var(--ink); }
+.lgC { color: var(--build); box-shadow: inset 0 0 0 1.5px var(--build); }
+.sell-launch { margin-top: 6px; font-size: 12.5px; }
+.sell-launch b { font-family: var(--f-head); font-weight: 600; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--build); margin-right: 4px; }
+.aff-card { margin-top: 6px; font-style: italic; font-size: 12.5px; line-height: 1.5; color: var(--fg); border-left: 3px solid var(--build); padding: 2px 0 2px 10px; }
+.btab { overflow-x: auto; margin: 4px 0 12px; }
+.btab table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; min-width: 480px; }
+.btab th { text-align: left; font-family: var(--f-head); font-weight: 600; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 2px solid var(--line); }
+.btab td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.btab td.k { font-weight: 600; }
+.btab b { font-weight: 600; }
+.bcal td, .bcal th { text-align: center; padding: 5px 8px; }
+.bcal td.k, .bcal td.also { text-align: left; }
+.bcal td.k { white-space: nowrap; }
+.bcal td.also { color: var(--muted); font-size: 12px; }
+.bcal tr.today td { background: color-mix(in srgb, var(--build) 16%, transparent); }
+.bh { font-family: var(--f-head); font-weight: 600; font-size: 15px; letter-spacing: .8px; text-transform: uppercase; margin: 16px 0 6px; }
+.blist { margin: 0 0 12px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; line-height: 1.5; }
+.blist b { font-weight: 600; }
+.bquote { margin: 6px 0 0; padding: 12px 14px; border-left: 3px solid var(--build); background: var(--ink); border-radius: 0 12px 12px 0; font-style: italic; font-size: 14px; line-height: 1.6; }
+.bquote.big { font-size: 16px; }
+.bflow { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.bflow span { background: var(--ink); border: 1px solid var(--line); border-radius: 20px; padding: 6px 12px; font-size: 12.5px; font-weight: 600; }
+.bflow span:not(:last-child)::after { content: " →"; color: var(--build); }
+.bst { display: inline-block; font-family: var(--f-head); font-weight: 700; font-size: 10.5px; letter-spacing: 1px; padding: 2px 8px; border-radius: 6px; }
+.bst-focus { background: var(--build); color: #fff; }
+.bst-side { color: var(--build); box-shadow: inset 0 0 0 1.5px var(--build); }
+.bst-hold { background: var(--fg); color: var(--ink); }
+.bst-remove { color: var(--muted); text-decoration: line-through; box-shadow: inset 0 0 0 1px var(--line); }
+#viewBuilding .bigl { color: var(--build); }
 .tsel-wrap { margin-top: 10px; border: 1px solid var(--lime); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .tsel-wrap.inbp { margin: 4px 0 14px; }
 .tsel-h { font-family: var(--f-head); font-weight: 600; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--lime); }
@@ -449,6 +495,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       <button role="tab" id="tabTracker" aria-selected="false" data-view="tracker">Week</button>
       <button role="tab" id="tabBlueprint" aria-selected="false" data-view="blueprint">Becoming</button>
       <button role="tab" id="tabDoing" aria-selected="false" data-view="doing">Doing</button>
+      <button role="tab" id="tabBuilding" aria-selected="false" data-view="building">Building</button>
     </div>
     <div class="weeknav">
       <button id="goalBtn" class="now goalbtn" aria-label="Your goals"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg><span>Goals</span></button>
@@ -473,6 +520,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <div class="today-count"><b id="todayDone">0</b> / <span id="todayDue">6</span> done</div>
       </div>
     </div>
+    <div class="buildcard" id="buildCard"></div>
     <div class="bar daybar" role="progressbar" aria-label="Today's progress" aria-valuemin="0" aria-valuemax="100" id="dayBarRole"><i id="dayBar"></i></div>
     <div class="next" id="nextUp"></div>
     <div class="tlist" id="tlist"></div>
@@ -565,6 +613,13 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     <div class="bp">
       <nav class="rail" id="drail" aria-label="Jump to skill"></nav>
       <div class="bpmain" id="dmain"></div>
+    </div>
+  </div>
+
+  <div class="view" id="viewBuilding" role="tabpanel" aria-labelledby="tabBuilding" hidden>
+    <div class="bp">
+      <nav class="rail" id="brail" aria-label="Jump to part"></nav>
+      <div class="bpmain" id="bmain"></div>
     </div>
   </div>
 
@@ -960,7 +1015,11 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       $("dayBar").style.width = dp + "%";
       $("dayBarRole").setAttribute("aria-valuenow", dp);
       $("tsub-create").innerHTML = (CREATE_DAYS[ti] === "shoot" ? `<em>Shoot day</em> · film your videos, edit the same day` : `<em>Copywriting</em> · write emails, ad copy, captions or scripts`) + `<div class="seclinks">${CREATE_DAYS[ti] === "shoot" ? '<button class="seclink" data-dsec="d04"><b>04</b>Content Creation</button>' : '<button class="seclink" data-dsec="d02"><b>02</b>Copywriting</button>'}</div>`;
-      $("tsub-sell").innerHTML = `<em>Skill of the day</em> · learn 15 min, then sell<div class="seclinks">${dLink(DOING_DAYS[ti])}</div>`;
+      const lt = launchTasks(new Date());
+      $("tsub-sell").innerHTML = `<em>Skill of the day</em> · learn 15 min, then sell<div class="seclinks">${dLink(DOING_DAYS[ti])}</div>`
+        + (lt.length ? `<div class="sell-launch"><b>Launch task</b> ${lt.map(x => `${x.step}: <span class="lg lg${x.g}">Group ${x.g}</span>`).join(" · ")}</div>` : "");
+      $("tsub-aff").innerHTML = `<em>Goal card</em> · rewrite it 5–10 times, read the dream, visualise it<div class="aff-card">${esc(GOAL_CARD)}</div>`;
+      $("buildCard").innerHTML = buildToday();
       $("tsub-become").innerHTML = `<em>${THEMES[ti].t}</em><div class="seclinks">${secLinks(THEMES[ti].s)}</div>${todaySelection()}`;
       setVal($("tpick"), w.picks[ti]);
       // up next
@@ -1652,6 +1711,148 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     main.querySelectorAll(".bpsec").forEach(el => obs.observe(el));
   }
 
+  /* ---------- Building · Volume III: the dream and the master plan ---------- */
+  const GOAL_CARD = "I am so happy and grateful now that I am a successful internet entrepreneur who travels the world freely, earns from multiple sources of income, and positively impacts the lives of millions.";
+  // December 2026 launches: ads every 3 days, rotating groups A, B, C. Add the January and February launches here once those calendars are built.
+  const LAUNCHES = [["2026-12-01", "A"], ["2026-12-04", "B"], ["2026-12-07", "C"], ["2026-12-10", "A"], ["2026-12-13", "B"], ["2026-12-16", "C"], ["2026-12-19", "A"], ["2026-12-22", "B"], ["2026-12-25", "C"], ["2026-12-28", "A"]];
+  const LSTEP = ["Run ads", "Orientation", "Follow-up 1", "Final follow-up & close"];
+  const MONTH_PLAN = {
+    "2026-11": { t: "Now: about 350,000 FCFA a month", n: "Next: 10 launches in December" },
+    "2026-12": { t: "December: build the machine", n: "10 launches · target ~500,000 FCFA net" },
+    "2027-01": { t: "January: turn on extra income", n: "12 launches · target ~750,000 FCFA net" },
+    "2027-02": { t: "February: scale", n: "15 launches · target ~1,000,000 FCFA net" }
+  };
+  const BG_TASKS = [
+    ["2026-11-01", "2026-11-30", "Before 1 December: create Group C. Set the done-for-you price and what it includes. Record the done-for-you pitch video. Set up the launch tracker. Prepare the new ad creative."],
+    ["2026-12-01", "2026-12-06", "Start the new-message test on campaign 2, with its own pre-filled WhatsApp message."],
+    ["2026-12-07", "2026-12-13", "Sort past buyers into three segments: Alibaba only; Alibaba + Pinduoduo; all three."],
+    ["2026-12-14", "2026-12-20", "Write the follow-up messages that move Alibaba buyers to Pinduoduo."],
+    ["2026-12-21", "2026-12-31", "Write the follow-up messages that move Pinduoduo buyers to Facebook ads. Set up the email tool so follow-up goes live in January."]
+  ];
+  const dayKey = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  function launchTasks(date) {
+    const t = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const out = [];
+    LAUNCHES.forEach(([d, g]) => { const k = Math.round((t - fromIso(d)) / 864e5); if (k >= 0 && k < 4) out.push({ step: LSTEP[k], g, k }); });
+    return out.sort((a, b) => a.k - b.k);
+  }
+  function phaseLabel(date) {
+    const k = date.getFullYear() * 12 + date.getMonth();
+    if (k <= 2027 * 12 + 1) return "Phase 1 · Plan A + learning";
+    return "Phase 2 · grow and systemise importation, once Gate 1 is passed";
+  }
+  function buildToday() {
+    const now = new Date(), ti = todayIdx(), key = dayKey(now), mk = key.slice(0, 7);
+    const mp = MONTH_PLAN[mk], tasks = launchTasks(now);
+    const bg = BG_TASKS.find(([a, b]) => key >= a && key <= b);
+    const lastLaunch = LAUNCHES.length ? LAUNCHES[LAUNCHES.length - 1][0] : "";
+    const rows = [];
+    if (tasks.length) rows.push(["Launch task", tasks.map(x => `${x.step}: <span class="lg lg${x.g}">Group ${x.g}</span>`).join(" · ")]);
+    else if (lastLaunch && key > dayKey(addDays(fromIso(lastLaunch), 3))) rows.push(["Launch task", "No launch calendar for this month yet. Build it with the same 3-day rhythm (Part 05)."]);
+    else rows.push(["Launch task", key < LAUNCHES[0][0] ? "Keep your current launches running. The new 3-group calendar starts Tuesday 1 December with Group A." : "Rest day between launches. Prepare the next one."]);
+    if (bg) rows.push(["This week", esc(bg[2])]);
+    if (ti === 6) rows.push(["Sunday review", "30 minutes on the tracker. Repeat what made money, fix or drop what didn't."]);
+    if (key.endsWith("-12-31")) rows.push(["Month review", "Review December and build the January calendar."]);
+    rows.push(["Plan B", "Learning only: at most 1–2 hours, spending no money."]);
+    return `<div class="bc-top"><span class="bc-eye">Building · today builds the dream</span><button class="bc-open" data-view="building">Open plan →</button></div>
+      ${mp ? `<div class="bc-month"><b>${esc(mp.t)}</b><span>${esc(mp.n)} · ${esc(phaseLabel(now))}</span></div>` : `<div class="bc-phase">${esc(phaseLabel(now))}</div>`}
+      <div class="bc-rows">${rows.map(([a, b]) => `<div class="bc-row"><span>${a}</span><div>${b}</div></div>`).join("")}</div>`;
+  }
+
+  const BT = (head, rows, w) => `<div class="btab"><table><tr>${head.map((h, i) => `<th${w && w[i] ? ` style="width:${w[i]}"` : ""}>${h}</th>`).join("")}</tr>${rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</table></div>`;
+  const BL = (items) => `<ul class="blist">${items.map(x => `<li>${x}</li>`).join("")}</ul>`;
+  const BQ = (t) => `<blockquote class="bquote">${t}</blockquote>`;
+  const BH = (t) => `<h3 class="bh">${t}</h3>`;
+  const FLOW = (items) => `<div class="bflow">${items.map(x => `<span>${x}</span>`).join("")}</div>`;
+  const ST = (s) => `<span class="bst bst-${s.toLowerCase()}">${s}</span>`;
+
+  function calendarTable() {
+    const days = [];
+    for (let d = 1; d <= 31; d++) {
+      const date = new Date(2026, 11, d), tasks = launchTasks(date), key = dayKey(date);
+      const cell = (k) => { const x = tasks.find(t => t.k === k); return x ? `<span class="lg lg${x.g}">${x.g}</span>` : ""; };
+      const also = [date.getDay() === 0 ? "Weekly review" : "", d >= 25 && d <= 27 ? "Christmas launch (optional)" : "", d === 31 ? "Month review" : ""].filter(Boolean).join("; ");
+      days.push(`<tr class="${key === dayKey(new Date()) ? "today" : ""}${date.getDay() === 0 ? " sun" : ""}"><td class="k">${DAYS[(date.getDay() + 6) % 7]} ${d}</td><td>${cell(0)}</td><td>${cell(1)}</td><td>${cell(2)}</td><td>${cell(3)}</td><td class="also">${also}</td></tr>`);
+    }
+    return `<div class="btab"><table class="bcal"><tr><th>Date</th><th>Run ads</th><th>Orientation</th><th>Follow-up 1</th><th>Final follow-up / close</th><th>Also</th></tr>${days.join("")}</table></div>
+      <p class="note"><span class="lg lgA">A</span> Group A: ads on 1, 10, 19, 28 · <span class="lg lgB">B</span> Group B: ads on 4, 13, 22 · <span class="lg lgC">C</span> Group C: ads on 7, 16, 25. 10 launches: Group A 4 times, B 3 times, C 3 times. Skipping the Christmas launch gives 9.</p>`;
+  }
+
+  const BUILD = [
+    { id: "b01", num: "01", word: "Vision", title: "THE SEVEN SKILLS I WILL MASTER", lead: "I rate myself average in each today. The goal is mastery so I can run my own internet businesses, not to be hired for any single skill.",
+      body: () => BT(["Skill", "How I practise it"], [["Copywriting and email marketing", "Hand-copy classic ads, read copy aloud, write my own follow-up emails"], ["Funnel building", "Build and improve the pages and steps of my own funnels"], ["Content creation", "Shoot talking-head videos; study what makes people stop scrolling"], ["Media buying", "Run and analyse my own Facebook ads; learn from every launch's numbers"], ["Offer creation", "Design the done-for-you offer and new back-end offers (exportation)"], ["Sales closing", "Close done-for-you clients in WhatsApp DMs and calls"], ["Public speaking", "Record orientations and pitches; review and improve each one"]], ["38%"]) },
+    { id: "b02", num: "02", word: "Ground", title: "WHERE I AM NOW", lead: "Snapshot as of November 2026. Bruno, 25, lives in Yaoundé, Cameroon, in his own studio apartment, and works from home.",
+      body: () => BT(["Area", "Today"], [["Business", "<b>Solidity Zone</b>: teaches Cameroonians to import from China. Do-it-yourself courses, done-with-you, and done-for-you (just started)."], ["Income", "About <b>350,000 FCFA a month after ad spend</b> (up to 400,000 in good months). Includes upsells and the occasional done-for-you client."], ["Other income", "Partnership stake in a boutique (Franconics store), being restructured and paying nothing for now. Not counted in the plan."], ["Audience", "About 2,000 people across WhatsApp groups. A list of past buyers with names, emails and phone numbers. A TikTok account. No email list yet."], ["Tools and team", "Good laptop, phone and internet. Video editing is outsourced. A desk for hand-copying ads is on its way."], ["Travel", "Has a passport. No visa yet and no travel budget yet."], ["Daily habits", "Wakes between 6 and 8. Morning affirmations, goal card, daily reading (currently <i>How to Get Rich</i> by Felix Dennis; just finished <i>The Boron Letters</i>), daily Bible reading."], ["Health", "Fit, with decent eating habits."], ["Spirituality", "Believes in God. Searching for a deeper understanding than surface-level religion before committing to a faith."], ["People", "Excellent relationship with parents and siblings. Good close friends, including one in online business and trading."], ["Biggest obstacles", "<b>Spreading himself thin across too many ventures, and not having a defined plan.</b>"]], ["28%"])
+        + BH("How the funnel works") + FLOW(["Facebook ad", "WhatsApp DM", "WhatsApp group", "Orientation", "Offer", "Upsells"])
+        + BH("The numbers") + BT(["Item", "Figure"], [["Front-end offer", "Alibaba importation course, <b>10,000 FCFA</b> (presented as worth 25,000)"], ["Upsell 1", "Pinduoduo course, taken by about <b>1 in 5</b> buyers"], ["Upsell 2", "Facebook ads / e-commerce course, taken by about <b>1 in 5</b> Pinduoduo buyers"], ["Done-for-you", "Just started, 1 client so far"], ["Ad spend per launch", "About <b>14,000 FCFA</b> (25,000 naira), bringing <b>30–50 joiners</b>"], ["Launches per month", "About <b>8</b>, so about 112,000 FCFA in ads and about 320 joiners a month"], ["Profit per launch", "About <b>40,000 FCFA</b> after ads, including upsells"], ["Launch cycle", "Day 1 ads, Day 2 orientation, Day 3 follow-up, Day 4 final follow-up and close. Each launch's sales pay the Facebook bill before the next ads run."]], ["32%"]) },
+    { id: "b03", num: "03", word: "Clearing", title: "BUSINESS DECISIONS: FOCUS, HOLD, REMOVE", lead: "Of ten ventures tried or considered, only one earns money. The pattern: new ideas take free time while they are small and then stall, while the business that works never gets full force. From now on, every idea has a clear status.",
+      body: () => BT(["Status", "Venture", "Why"], [[ST("FOCUS"), "<b>Importation (Solidity Zone)</b>", "The engine. It pays for everything else, including Plan B."], [ST("SIDE"), "<b>Digital product (automated)</b>", "Already built and hosted; runs on ads as side income. Capped at about an hour a week (new creatives, check cost per sale). Never takes Create or Sell time."], [ST("HOLD"), "<b>Exportation course</b>", "Add as a back-end offer to existing buyers (month 3). No new funnel."], [ST("HOLD"), "<b>Importation for other African countries</b>", "Optional growth path for Plan A once the Cameroon business is systemised."], [ST("HOLD"), "<b>US company and bank account</b>", "Register only when the US business is ready to sell (Plan B, after the China trip)."], [ST("HOLD"), "<b>Shopwise as a joint venture</b>", "Idea: a friend's father invests for equity, Bruno handles software and ads, the friend runs operations. Discuss after Plan A is running."], [ST("HOLD"), "<b>Ebooks, digital-products course</b>", "Didn't convert or split the audience. Revisit later."], [ST("REMOVE"), "<b>YouTube channel</b>", "Failed from inconsistency. Needs time Bruno can't give."], [ST("REMOVE"), "<b>White-label games</b>", "Unrelated to the dream, costs money upfront, Google Play is strict about reskinned template apps."], [ST("REMOVE"), "<b>SMM platform and SMM course</b>", "Already proven to have poor returns."], [ST("REMOVE"), "<b>Forex trading</b>", "Not what Bruno wants and doesn't build the dream."]], ["16%", "30%"]) },
+    { id: "b04", num: "04", word: "Foundation", title: "PLAN A: 3 MONTHS TO 1,000,000 FCFA A MONTH", lead: "Goal: grow Solidity Zone from about 350,000 to about 1,000,000 FCFA net per month by February 2027. Scaling ads alone won't do it (ads get more expensive as you push them), so the plan combines more launches with earning more from each person who joins.",
+      body: () => BH("The seven levers") + BT(["#", "Lever", "What it means"], [["1", "<b>Three-group rotation</b>", "Add Group C. Start a new launch every 3 days, rotating A, B, C. Launches go from 8 to 10, then 12, then 15 a month. Each group rests about 9 days, so people feel they missed the promotion."], ["2", "<b>Done-for-you</b>", "Pitch it inside the course videos and orientations (“Some of you don't have the time or courage. What if I did it for you?”). The biggest lever."], ["3", "<b>Follow-up system</b>", "Segment buyers (Alibaba only; Alibaba + Pinduoduo; all three) and send segmented follow-up offers by email and WhatsApp broadcast."], ["4", "<b>Test a new ad message</b>", "Campaign 1 keeps the current message; campaign 2 tests a message for people with money. Judge by money earned per joiner. See Part 06."], ["5", "<b>Track every launch</b>", "Ad spend, joiners, buyers, upsells, done-for-you and revenue. Review every Sunday. Use the tracker in Part 09."], ["6", "<b>Keep a 15,000 FCFA ad reserve</b>", "One launch's worth of ad money set aside from profits, so overlapping launches never stall waiting for cash."], ["7", "<b>One change at a time</b>", "Don't raise the course price yet. Change one thing at a time so you know what worked."]], ["6%", "30%"])
+        + BH("Monthly targets") + BT(["", "Dec 2026", "Jan 2027", "Feb 2027"], [["Launches", "10", "12", "15"], ["Launch profit (about 40,000 each)", "~400,000", "~480,000", "~600,000"], ["Done-for-you and new follow-up offers", "~100,000", "~270,000", "~400,000"], ["<b>Total net (FCFA)</b>", "<b>~500,000</b>", "<b>~750,000</b>", "<b>~1,000,000</b>"]], ["40%"])
+        + `<p class="note">Upsells already sold inside launches are part of the ~40,000 per launch. “New follow-up offers” means extra sales to past buyers, plus exportation from month 3. December and January can be unusual months for spending, so watch the tracker closely.</p>`
+        + BH("Month by month") + BT(["Month", "Focus", "Key actions"], [["December", "Build the machine", "10 launches in 3 groups. Track every launch. Done-for-you pitch live. New message test on campaign 2. Build the follow-up system in the background."], ["January", "Turn on extra income", "12 launches. Start sending follow-up offers to segmented buyers. Keep whichever ad message earns more per joiner."], ["February", "Scale", "15 launches. Launch exportation as a back-end offer. Done-for-you at full speed."]], ["18%", "24%"]) },
+    { id: "b05", num: "05", word: "Schedule", title: "THE DECEMBER 2026 LAUNCH CALENDAR", lead: "The rhythm: Day 1 ads (about 14,000 FCFA, turned off when the budget is reached) → Day 2 orientation (with the done-for-you pitch) → Day 3 follow-up 1 (to those who attended) → Day 4 final follow-up and close. Pay Facebook from the sales, then run ads for the next group the same day.",
+      body: () => calendarTable()
+        + BH("Background tasks alongside the launches") + BT(["When", "Tasks"], [["Before 1 December", "Create Group C. Set the done-for-you price and what it includes. Record the done-for-you pitch video. Set up the launch tracker. Prepare the new ad creative."], ["Week 1 (1–6)", "Start the new-message test on campaign 2, with its own pre-filled WhatsApp message."], ["Week 2 (7–13)", "Sort past buyers into three segments: Alibaba only; Alibaba + Pinduoduo; all three."], ["Week 3 (14–20)", "Write the follow-up messages that move Alibaba buyers to Pinduoduo."], ["Week 4 (21–31)", "Write the follow-up messages that move Pinduoduo buyers to Facebook ads. Set up the email tool so follow-up goes live in January."]], ["26%"])
+        + BH("My daily routine") + BL(["<b>Morning:</b> affirmations, rewrite the goal card 5–10 times, read the dream, visualise it.", "<b>Today's launch task:</b> ads, orientation, follow-up or close, depending on the calendar.", "<b>One hour of skill practice:</b> rotate the seven skills (Plan A work counts as practice too).", "<b>Plan B learning:</b> at most 1–2 hours, no spending (see Part 07).", "<b>Reading:</b> every day.", "<b>Sunday:</b> 30-minute review of the tracker. Repeat what made money, fix or drop what didn't."]) },
+    { id: "b06", num: "06", word: "Message", title: "FIXING THE AD MESSAGE", lead: "The problem. The current ads say “start a business with as little as 10,000 FCFA”. They attract people whose main problem is lack of money: dreamers who ask “what is the least capital?” and promise to buy “next year”. They can buy a 10,000 course but almost never done-for-you.",
+      body: () => `<p class="note"><b>The fix.</b> Move from “start with little money” to “stop losing money” or “save your time”. Target people who already have money and different pains.</p>`
+        + BT(["Audience", "Their pain", "Their hope"], [["<b>Traders and boutique owners</b> buying from local wholesalers", "Paying the middleman's markup, thin margins, competitors selling cheaper", "Buy at the source, double their margin, unique stock"], ["<b>Salaried workers</b> (civil servants, employees)", "Salary isn't enough, no time to learn or manage importing", "A second income without quitting their job"], ["<b>Online vendors</b> (WhatsApp, Facebook, Instagram sellers)", "Unreliable local suppliers, prices eating their profit", "Their own supply line and better prices"], ["<b>People burned before</b> by agents or bad orders", "Fear of scams, lost goods, customs headaches, poor quality", "A safe, trusted way to import"]], ["34%", "36%"])
+        + BH("Hook directions to develop") + BL(["“Still buying your stock from wholesalers? You're paying for their profit, not yours.”", "“Your salary covers the month. Importing can cover the rest, even if you don't have time to do it yourself.”", "“Afraid of sending money to China and losing it? Here's how serious traders import safely.”", "“Shop owners: the same goods you sell, at the price your supplier pays.”"])
+        + BH("Filter and test") + BL(["<b>Add a filter line</b> so dreamers rule themselves out, e.g. “For traders and workers ready to place their first order from 200,000 FCFA” (adjust to the real minimum for done-for-you).", "<b>Qualify in the DM:</b> “Do you already sell goods or have a business?” Dreamers go to the DIY course; serious buyers go to done-for-you.", "<b>Test, don't switch.</b> Campaign 1 keeps the old message (it brings cheap joiners and current income). Campaign 2 runs the new message with its own pre-filled WhatsApp text.", "<b>Judge after 2–3 launches by money per joiner</b>, not number of joiners. If the new message wins, shift budget to it.", "<b>Replying to “next year” leads:</b> answer the capital question honestly, then point out that learning now means being ready the day the money comes, and the 10,000 price ends with this promotion."]) },
+    { id: "b07", num: "07", word: "Expansion", title: "PLAN B: THE ROAD TO A GLOBAL BUSINESS", lead: "Why Plan B is needed. Importation sold only in Cameroon can give a good life here, but it probably won't fund Rio, Bangkok and New York, for two reasons: everything depends on Bruno being present, and the market is small. The dream needs a business that runs without him and sells to a much bigger market, earning in dollars or euros.",
+      body: () => `<p class="note"><b>The chosen direction.</b> A legal, US-registered company selling products to Western customers, with a website and checkout built to US standards. Customers don't need to know where the owner lives. Recommended model: an <b>e-commerce brand</b> selling in-demand physical products sourced from China, because it combines Bruno's existing edge (China sourcing) with the skills he is mastering (copy, funnels, ads, offers).</p>`
+        + BH("The sequence Bruno chose") + FLOW(["Grow importation", "China trip: supplier contacts", "US e-commerce brand", "More businesses and partnerships"])
+        + BH("Business models considered") + BT(["Model", "Strength", "Weakness"], [["<b>E-commerce brand</b> (recommended)", "Uses the China-sourcing edge plus direct-response marketing. Can grow into a brand worth selling.", "Needs money for stock and ad tests; many tested products fail; shipping and customer service to manage."], ["<b>Digital products</b>", "No stock or shipping, high profit per sale.", "Needs real expertise in the topic; ebook tests haven't converted yet; strict payment processors in money and health topics."], ["<b>Affiliate marketing</b>", "No product to create, pure marketing skill.", "Owns nothing, ad accounts get banned easily, thinner margins."]], ["24%", "38%"])
+        + `<p class="note">Service businesses (agencies) were ruled out because they tie up Bruno's time. Selling importation courses to Western buyers was ruled out: the market is crowded, ads cost far more, and Bruno's edge is the African importer's problems.</p>`
+        + BH("Timeline") + BT(["Phase", "When", "What happens"], [["<b>1. Plan A + learning</b>", "Dec 2026 – Feb 2027", "Plan A to 1M FCFA a month. At most 1–2 hours a day of Plan B learning, spending no money: study US direct-response brands (ads, product pages, offers, checkouts), practise American-English copy, learn how products are found and tested, research the setup a non-US owner needs."], ["<b>2. Grow and systemise importation</b>", "Mar – Sep 2027", "Write down every process (launch steps, follow-up scripts, done-for-you). Hire an assistant for follow-ups and done-for-you logistics. Test: step away for a week and income holds. Optional: expand to other African countries. Prepare visa and travel budget; save for the China trip and US setup."], ["<b>3. China trip</b>", "Autumn 2027 (or spring if Plan A is ahead)", "Canton Fair in Guangzhou, held every spring (April–May) and autumn (October–November). Meet suppliers in person and build contacts for both importation and the US brand, while the team runs launches at home."], ["<b>4. US e-commerce brand</b>", "From late 2027", "Register the US company, bank account and payment processing. Build the store to US standards. Test 3–5 products with small fixed budgets and kill losers fast. Scale the winner, move stock to a US warehouse, hire customer service, grow into a brand."], ["<b>Long term</b>", "3–5 years", "Several brands and businesses, partnerships paying dividends, possibly selling a brand. Bruno's own internet-marketing brand and mentees, taught from real results. Travel whenever he wants."]], ["24%", "20%"])
+        + BH("The gates") + `<p class="note">The dates in the timeline are targets. The gates decide. A phase starts when its gate is passed, not when the calendar says so. If Plan A is late, Plan B waits.</p>`
+        + BT(["Gate", "Opens", "Passed when"], [["<b>Gate 1</b>", "Systemise importation (Phase 2)", "Two months in a row at about 750,000 FCFA net or more."], ["<b>Gate 2</b>", "Small Plan B tests", "From March 2027, or once Plan A reaches about 750,000 FCFA a month. A fixed monthly test budget, paid from profit, never from the ad reserve."], ["<b>Gate 3</b>", "China trip (Phase 3)", "Importation held its income for a full week without me, and the China trip savings are reached."], ["<b>Gate 4</b>", "Build the US e-commerce brand (Phase 4)", "Plan A income has been stable for three months, and the savings for the US company, stock and first ad tests are reached."]], ["14%", "30%"])
+        + BH("The savings target") + BT(["Saving for", "Amount"], [["China trip (flights, visa, stay, Canton Fair)", "To decide"], ["US company, bank and payment setup", "To decide"], ["First stock and product samples", "To decide"], ["First ad tests", "To decide"], ["<b>Total savings target</b>", "<b>To decide</b>"]], ["60%"])
+        + `<p class="note"><b>Staying legal.</b> A US company owned from abroad is a normal international business. The line is simple: never make false claims. No “Made in USA” on Chinese products, no fake reviews, no invented team, honest shipping times and refunds. Before registering, confirm the company, bank, payment-processing and tax setup for a non-US owner with a qualified professional.</p>` },
+    { id: "b08", num: "08", word: "Code", title: "RULES THAT KEEP ME FOCUSED", lead: "",
+      body: () => `<ol class="code">${["<b>Plan A comes first.</b> From March 2027, or once Plan A reaches about 750,000 FCFA a month, Plan B may run small tests with a fixed budget. Full building starts only at Gate 4.", "<b>One new business at a time.</b> No new venture starts until the current one is running or has been dropped.", "<b>Plan B gets at most 1–2 hours a day</b> during Phase 1, and it spends nothing beyond the small-test budget until Gate 4.", "<b>Change one thing at a time.</b> Price, message, offer: test them separately so you know what worked.", "<b>Track every launch.</b> If it isn't in the tracker, it didn't happen. Decide from numbers, not feelings.", "<b>Every new idea goes on a list, not into action.</b> Review the list once a month against the four Plan B tests: a product not my time, sells beyond Cameroon, runs without me, uses my skills."].map(r => `<li>${r}</li>`).join("")}</ol>` },
+    { id: "b09", num: "09", word: "Ledger", title: "LAUNCH TRACKER: DECEMBER 2026", lead: "Fill in after each launch closes. Profit = revenue minus ad spend. Copy this page for January and February.",
+      body: () => BT(["#", "Group", "Ads date", "Columns to fill in"], LAUNCHES.map(([d, g], i) => [String(i + 1), `<span class="lg lg${g}">${g}</span>`, fromIso(d).getDate() + " Dec", "Ad spend · Joiners · Course buyers · Upsells · DFY · Revenue · Profit"]), ["8%", "12%", "16%"])
+        + `<p class="note">Also note for each launch which ad message brought the joiners (campaign 1 or 2), so you can compare money per joiner. Every month, also note what you saved for Plan B, the total saved so far, and the savings target (Part 07). The tracker itself lives in the brochure, on paper.</p>` },
+    { id: "b10", num: "10", word: "Next", title: "OPEN DECISIONS AND NEXT TASKS", lead: "",
+      body: () => BT(["Item", "Status"], [["<b>Done-for-you offer:</b> what it includes, the price (flat fee or a percentage of order value with a minimum), and how many clients a month Bruno can handle", "To decide before 1 December"], ["<b>Freedom number:</b> the monthly income that would fund the dream lifestyle", "To decide; becomes the long-term income target"], ["<b>New ad scripts:</b> 2–3 scripts for the new audiences, to shoot in the studio and test on campaign 2", "Next task (see the appendix)"], ["<b>Plan B savings target:</b> the amounts for the China trip, the US setup, first stock and first ad tests (Part 07, the gates)", "To decide; tracked monthly from December"], ["<b>Plan B test budget:</b> the fixed monthly amount for small tests once Gate 2 is passed", "To decide before March 2027"], ["<b>Christmas launch</b> (Group C, 25–27 December): keep or skip", "To decide"], ["<b>January and February calendars</b> using the same 3-day rhythm (12 and 15 launches)", "To build at the end of December"], ["<b>Plan B model:</b> confirm the e-commerce brand over digital products or affiliate marketing", "To confirm after Plan A is stable"], ["<b>Shopwise joint venture:</b> partner roles, equity and investment terms", "On hold until Plan A is running"]], ["64%"]) },
+    { id: "bA", num: "A", word: "Appendix", title: "BRIEF FOR AN AI ASSISTANT", lead: "If you are an AI reading this in a new conversation: this document was created with Bruno, a 25-year-old internet entrepreneur in Yaoundé, Cameroon. Everything above is agreed. Pick up from here without asking him to repeat it.",
+      body: () => BH("Key facts") + BL(["Business: <b>Solidity Zone</b>, teaching Cameroonians to import from China. Funnel: Facebook ad, WhatsApp DM, WhatsApp group, recorded orientation (photos, videos, audio), offer, upsells.", "Offers: Alibaba course 10,000 FCFA (front end), Pinduoduo course (upsell 1, about 1 in 5), Facebook ads / e-commerce course (upsell 2, about 1 in 5 of those), done-for-you importing (new).", "Numbers: about 14,000 FCFA (25,000 naira) of ads per launch for 30–50 joiners; about 8 launches a month; about 40,000 FCFA profit per launch; about 350,000 FCFA a month net after ads.", "Goal: 1,000,000 FCFA net a month by February 2027 (Plan A, Part 04), then grow and systemise, travel to China (Canton Fair), and build a US e-commerce brand for Western customers (Plan B, Part 07).", "Bruno wants to master seven skills: copywriting and email, funnels, content, media buying, offers, closing, public speaking. He prefers direct, honest feedback and dislikes spreading himself thin."])
+        + BH("Your next task: write the new ad scripts") + BL(["Write <b>2–3 talking-head video ad scripts</b> (about 45–90 seconds each) that Bruno will shoot in a studio and run on Facebook (campaign 2).", "Each script targets one audience from Part 06 (traders and boutique owners, salaried workers, online vendors, or people burned before) and speaks to <b>their pains and hopes</b>, not to lack of capital.", "Structure: a strong hook in the first 3 seconds, the pain, the hope, why Bruno and Solidity Zone, a filter line that says who it's for, and a call to action to message on WhatsApp.", "Include a short on-screen text suggestion and a unique pre-filled WhatsApp message for each script, so Bruno can tell which ad each lead came from.", "Ask Bruno whether the ads should be in English, French or both, and confirm the done-for-you minimum order before writing the filter line.", "Keep claims honest: no income guarantees, no fake testimonials."]) + `<p class="note">Prepared in November 2026. Review and update this document at the end of every month.</p>` }
+  ];
+
+  function buildBuilding() {
+    const main = $("bmain"), rail = $("brail");
+    let html = `<section class="bpsec intro" id="sec-bintro" data-rail="bintro">
+      <div class="kick">Building · Volume III · The Dream &amp; the Master Plan</div>
+      <h1>THE DREAM, <span>AND THE PLAN TO BUILD IT.</span></h1>
+      <p>The dream, where I stand today, and the plan to bridge the gap. Plan A: 1,000,000 FCFA a month by February 2027. Plan B: a global business that sets me free.</p>
+      <div class="bdh"><span>BECOMING</span>→<span>DOING</span>→<span class="on">BUILDING</span></div>
+      <div class="kick" style="margin-top:16px">My goal card · rewritten 5–10 times every morning, read and visualised</div>
+      <blockquote class="bquote big">${esc(GOAL_CARD)}</blockquote>
+      <div class="kick" style="margin-top:16px">My dream life</div>
+      ${BQ("I am a successful internet entrepreneur living a life of full financial, location and time freedom. My online businesses and partnerships give me multiple sources of income, and my products massively and positively impact people’s lives. I travel the world freely, from Bali to Dubai to whichever part of the world I choose. I live where I want, when I want, for as long as I want. I am very eloquent, sophisticated, well-read, well-connected and spiritually grounded.")}
+      <div class="kick" style="margin-top:16px">My dream family</div>
+      ${BQ("I am blessed with a feminine, loving, supportive and caring wife, and three good-looking, intelligent and ambitious children, both sons and daughters. They grow up in a stable home in whichever country we choose, and they spend their holidays with their grandparents in Cameroon. I am deeply close to my parents and siblings. I keep a small, loyal circle of friends around the world, and I meet them wherever they are.")}
+      <div class="kick" style="margin-top:16px">How it comes together each day</div>
+      <p class="note">The Today tab carries the plan into the day: the goal card in the morning, the launch task in your Sell slot, this week's background task, the month's Plan A target, and the Sunday review. Becoming shapes the man, Doing builds the skill, and Building points both at the dream.</p>
+    </section>`;
+    BUILD.forEach(s => {
+      html += `<section class="bpsec" id="sec-${s.id}" data-rail="${s.id}">
+        <div class="bphead"><div class="bigl">${s.num}</div><div style="min-width:0"><div class="kick">${s.num === "A" ? "Appendix" : "Part " + s.num} · ${esc(s.word)}</div><h2>${s.title}</h2>${s.lead ? `<p class="purpose">${esc(s.lead)}</p>` : ""}</div></div>
+        ${s.body()}
+      </section>`;
+    });
+    main.innerHTML = html;
+    rail.innerHTML = [["bintro", "Dream", true], ...BUILD.map(s => [s.id, s.num, false])].map(([id, label, word]) => `<button class="${word ? "word" : ""}" data-jump="${id}">${label}</button>`).join("");
+    const obs = new IntersectionObserver((entries) => {
+      if (jumping) return; entries.forEach(en => { if (en.isIntersecting) markRail(en.target.dataset.rail); });
+    }, { rootMargin: "-35% 0px -60% 0px" });
+    main.querySelectorAll(".bpsec").forEach(el => obs.observe(el));
+  }
+
   let jumping = false, jumpTimer = null;
   function railFor(id) { const b = document.querySelector(`.rail [data-jump="${id}"]`); return b ? b.closest(".rail") : $("rail"); }
   function markRail(id) {
@@ -1668,7 +1869,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   }
   function jumpOffset() {
     const top = document.querySelector(".top").offsetHeight;
-    const rail = !$("viewDoing").hidden ? $("drail") : $("rail");
+    const rail = !$("viewDoing").hidden ? $("drail") : !$("viewBuilding").hidden ? $("brail") : $("rail");
     const railH = window.innerWidth < 900 ? rail.offsetHeight : 0;
     return top + railH + 12;
   }
@@ -1688,8 +1889,8 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   function setHdr() { document.documentElement.style.setProperty("--hdr", document.querySelector(".top").offsetHeight + "px"); }
   function showView(v, opts) {
     if (v === "becoming") v = "blueprint";
-    const views = { today: "viewToday", tracker: "viewTracker", blueprint: "viewBlueprint", doing: "viewDoing" };
-    const tabs = { today: "tabToday", tracker: "tabTracker", blueprint: "tabBlueprint", doing: "tabDoing" };
+    const views = { today: "viewToday", tracker: "viewTracker", blueprint: "viewBlueprint", doing: "viewDoing", building: "viewBuilding" };
+    const tabs = { today: "tabToday", tracker: "tabTracker", blueprint: "tabBlueprint", doing: "tabDoing", building: "tabBuilding" };
     Object.keys(views).forEach(k => { const on = k === v; $(views[k]).hidden = !on; $(tabs[k]).setAttribute("aria-selected", on ? "true" : "false"); });
     $("viewTracker").style.display = v === "tracker" ? "flex" : "none";
     $("weekBtns").style.display = v === "tracker" ? "contents" : "none";
@@ -1711,6 +1912,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     buildGrid();
     buildBlueprint();
     buildDoing();
+    buildBuilding();
     paintSoundBtn();
     paintGoalBtn();
     setHdr();
@@ -1718,6 +1920,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     const h = location.hash.slice(1);
     if (h === "blueprint" || h === "becoming") showView("blueprint", { keepScroll: true });
     else if (h === "doing") showView("doing", { keepScroll: true });
+    else if (h === "building") showView("building", { keepScroll: true });
     else if (h === "week" || h === "tracker") showView("tracker", { keepScroll: true });
     else showView("today", { keepScroll: true });
     render();

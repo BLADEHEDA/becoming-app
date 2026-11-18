@@ -207,6 +207,18 @@ details.act[open] summary::after { content: "–"; }
 .rday.today { border-color: var(--lime); }
 .rday small { display: block; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .rday b { font-family: var(--f-head); font-weight: 600; font-size: 14px; text-transform: uppercase; }
+.jobs { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; border-left: 2px solid var(--line); padding-left: 9px; }
+.jobs > div { font-size: 12px; line-height: 1.4; color: var(--muted); min-width: 0; }
+.jobs span { font-family: var(--f-head); font-weight: 600; font-size: 9.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--lime); margin-right: 6px; }
+.jobs > div + div span { color: var(--build); }
+.bc-lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 640px) { .bc-lanes { grid-template-columns: 1fr; } }
+.bc-lane { min-width: 0; }
+.bc-lt { font-family: var(--f-head); font-weight: 600; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; padding-bottom: 4px; }
+.bc-lane.now .bc-lt { color: var(--lime); }
+.bc-lane.next .bc-lt { color: var(--build); }
+.bc-sun { font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 7px; }
+.bc-sun b { font-family: var(--f-head); font-weight: 600; letter-spacing: .6px; text-transform: uppercase; font-size: 11px; }
 .buildcard { margin: 0 0 12px; border-radius: 16px; padding: 10px 12px; background: var(--ink); border: 1px solid var(--line); border-left: 4px solid var(--build); display: flex; flex-direction: column; gap: 8px; }
 .bc-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .bc-eye { font-family: var(--f-head); font-weight: 600; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--build); }
@@ -671,14 +683,22 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   // keep the sign-in details from the email link before the app rewrites the address
   const AUTH_URL = { hash: location.hash, search: location.search };
   const HABITS = [
-    { k: "aff",    n: "Affirmations",   s: "Self-identity alignment",               g: "15 min",    t: 7, time: "06:00" },
-    { k: "bible",  n: "Bible Study",    s: "Spiritual alignment & study",           g: "30 min",    t: 7, time: "06:15" },
-    { k: "read",   n: "Read Book",      s: "Business, marketing & mindset",         g: "30+ min",   t: 6, time: "06:45" },
-    { k: "create", n: "Create",         s: "Shoot Mon · Wed · Sat, copywriting the other days", g: "60–90 min", t: 7, time: "09:00" },
-    { k: "sell",   n: "Sell",           s: "15 min skill of the day, then outreach, calls & follow-ups", g: "60 min", t: 7, time: "11:00" },
-    { k: "become", n: "Curated Content · Becoming", s: "Deliberate study from the Becoming blueprint", g: "30 min", t: 6, time: "20:45" },
-    { k: "abst",   n: "Abstain",        s: "One day at a time · mark it any time", g: "All day", t: 7, time: null }
+    { k: "aff",    n: "Affirmations",   s: "Self-identity alignment",               g: "15 min",    t: 7, time: "1",
+      td: "Start the day aligned and calm.", tm: "Rewire who you are becoming: the man on the goal card." },
+    { k: "bible",  n: "Bible Study",    s: "Spiritual alignment & study",           g: "30 min",    t: 7, time: "2",
+      td: "Steady and grounded for the work ahead.", tm: "The spiritually grounded man of your dream life." },
+    { k: "read",   n: "Read Book",      s: "Business, marketing & mindset",         g: "30+ min",   t: 6, time: "3",
+      td: "One idea you apply in today's work.", tm: "The well-read man, and the knowledge a global business needs." },
+    { k: "create", n: "Create",         s: "Shoot Mon · Wed · Sat, copywriting the other days", g: "60–90 min", t: 7, time: "4",
+      td: "Copy and content for the current launches.", tm: "Reps in copywriting and content, the skills the global brand runs on." },
+    { k: "sell",   n: "Sell",           s: "15 min skill of the day, then outreach, calls & follow-ups", g: "60 min", t: 7, time: "5",
+      td: "Money in now: today's launch task and closing.", tm: "Reps in closing and offers, and every sale funds Plan B." },
+    { k: "become", n: "Curated Content · Becoming", s: "Deliberate study from the Becoming blueprint", g: "30 min", t: 6, time: "6",
+      td: "Refine how you see, speak and carry yourself.", tm: "The eloquent, sophisticated, well-connected man of the dream." },
+    { k: "abst",   n: "Abstain",        s: "One day at a time · mark it any time", g: "All day", t: 7, time: null,
+      td: "Self-command for one day.", tm: "The character that keeps the dream once it is built." }
   ];
+  const jobsHTML = (hb) => `<div class="jobs"><div><span>Today</span>${hb.td}</div><div><span>Tomorrow</span>${hb.tm}</div></div>`;
   const TOTAL = HABITS.reduce((a, h) => a + h.t, 0);
   const isSched = (h, i) => !h.days || h.days.includes(i);
   const SHIELD = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
@@ -913,7 +933,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     BLOCKS.forEach(b => {
       const div = document.createElement("div");
       div.className = "blk" + (b.hot ? " hot" : "");
-      const items = b.keys.map(k => { const hb = HABITS.find(x => x.k === k); return `<li><b>${hb.time}</b> · ${hb.k === "become" ? "Becoming" : hb.n} (${hb.g}${hb.days ? ", Mon · Wed · Sat" : ""})</li>`; }).join("");
+      const items = b.keys.map(k => { const hb = HABITS.find(x => x.k === k); return `<li>${hb.k === "become" ? "Becoming" : hb.n} (${hb.g}${hb.days ? ", Mon · Wed · Sat" : ""})</li>`; }).join("");
       div.innerHTML = `<div class="bt">${b.t.toUpperCase()}</div><div class="bs">${b.s}</div><ul>${items}</ul>`;
       bl.appendChild(div);
     });
@@ -923,12 +943,12 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       const row = document.createElement("div");
       if (hb.k === "abst") {
         row.className = "titem abitem"; row.dataset.k = "abst";
-        row.innerHTML = `<div class="ttime ashield">${SHIELD}</div><div style="min-width:0"><div class="tname">Abstain</div><div class="tsub">One day at a time · mark it any time</div><div class="astats" id="abStats"></div></div><div class="abtns"><button class="abtn ok" data-mark="kept" aria-pressed="false" aria-label="Kept today">${CK}</button><button class="abtn no" data-mark="slip" aria-pressed="false" aria-label="Slipped today">${XMARK}</button></div>`;
+        row.innerHTML = `<div class="ttime ashield">${SHIELD}</div><div style="min-width:0"><div class="tname">Abstain</div><div class="tsub">One day at a time · mark it any time</div>${jobsHTML(hb)}<div class="astats" id="abStats"></div></div><div class="abtns"><button class="abtn ok" data-mark="kept" aria-pressed="false" aria-label="Kept today">${CK}</button><button class="abtn no" data-mark="slip" aria-pressed="false" aria-label="Slipped today">${XMARK}</button></div>`;
         tl.appendChild(row); return;
       }
       row.className = "titem"; row.dataset.k = hb.k;
       const pick = hb.k === "become" ? `<input class="tpick" id="tpick" data-pick="today" placeholder="What will you watch, read or listen to?" aria-label="Today's Becoming pick">` : "";
-      row.innerHTML = `<div class="ttime">${hb.time}</div><div style="min-width:0"><div class="tname">${hb.k === "become" ? "Becoming" : hb.n}</div><div class="tsub" id="tsub-${hb.k}">${hb.g} · ${hb.s}</div>${pick}</div><button class="tick" data-k="${hb.k}" data-i="today" aria-pressed="false" aria-label="${hb.n}, today">${CHECK}</button>`;
+      row.innerHTML = `<div class="ttime">${hb.time}</div><div style="min-width:0"><div class="tname">${hb.k === "become" ? "Becoming" : hb.n}</div><div class="tsub" id="tsub-${hb.k}">${hb.g} · ${hb.s}</div>${jobsHTML(hb)}${pick}</div><button class="tick" data-k="${hb.k}" data-i="today" aria-pressed="false" aria-label="${hb.n}, today">${CHECK}</button>`;
       tl.appendChild(row);
     });
   }
@@ -1023,13 +1043,12 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       $("tsub-become").innerHTML = `<em>${THEMES[ti].t}</em><div class="seclinks">${secLinks(THEMES[ti].s)}</div>${todaySelection()}`;
       setVal($("tpick"), w.picks[ti]);
       // up next
-      const now = new Date(); const mins = now.getHours() * 60 + now.getMinutes();
-      const order = HABITS.filter(h => h.time).sort((a, b) => a.time.localeCompare(b.time));
-      const next = order.find(h => isSched(h, ti) && !w.ticks[h.k][ti] && (+h.time.slice(0, 2) * 60 + +h.time.slice(3)) >= mins - 30);
+      const order = HABITS.filter(h => h.time);
+      const next = order.find(h => isSched(h, ti) && !w.ticks[h.k][ti]);
       const pending = order.filter(h => isSched(h, ti) && !w.ticks[h.k][ti]);
       document.querySelectorAll(".titem").forEach(r => r.classList.toggle("up", !!next && r.dataset.k === next.k));
       $("nextUp").innerHTML = done >= due ? "<b>Everything done today.</b> Well done. Rest, then do it again tomorrow."
-        : next ? `Up next: <b>${next.k === "become" ? "Becoming" : next.n}</b> at <b>${next.time}</b>`
+        : next ? `Up next: <b>${next.k === "become" ? "Becoming" : next.n}</b> · in your own time, in this order`
         : `${pending.length} still open today. Never miss twice.`;
     }
 
@@ -1664,7 +1683,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       <div class="forces">${forces}</div>
       <div class="kick" style="margin-top:16px">The weekly Doing rhythm · learn 15 min in your Sell slot, then execute</div>
       <div class="rhythm">${DOING_DAYS.map((d, i) => `<div class="rday${i === todayIdx() ? " today" : ""}"><small>${DAY_FULL[i]}${i === todayIdx() ? " · today" : ""}</small><b>${d.t}</b><div class="seclinks"><button class="seclink" data-jump="d${d.n}"><b>${d.n}</b>Open skill</button></div></div>`).join("")}</div>
-      <p class="note">Create (9:00): shoot on Monday, Wednesday and Saturday, write copy the other four days. Sell (11:00): sell every day after 15 minutes of learning: sales conversations Mon · Wed · Fri, human psychology Tue · Thu · Sat, offer revision on Sunday. Funnels (05) and media buying (06) stay here as reference.</p>
+      <p class="note">Create: shoot on Monday, Wednesday and Saturday, write copy the other four days. Sell: sell every day after 15 minutes of learning: sales conversations Mon · Wed · Fri, human psychology Tue · Thu · Sat, offer revision on Sunday. Funnels (05) and media buying (06) stay here as reference.</p>
       <div class="kick" style="margin-top:16px">The skill stack · how money is made · tap a skill to open it</div>
       <div class="chain">${chain}</div>
     </section>`;
@@ -1741,22 +1760,27 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     if (k <= 2027 * 12 + 1) return "Phase 1 · Plan A + learning";
     return "Phase 2 · grow and systemise importation, once Gate 1 is passed";
   }
+  function nextGate(date) {
+    const k = date.getFullYear() * 12 + date.getMonth();
+    return k <= 2027 * 12 + 1 ? "Gate 1: two months in a row at about 750,000 FCFA net." : "Check the gates in Part 07.";
+  }
   function buildToday() {
     const now = new Date(), ti = todayIdx(), key = dayKey(now), mk = key.slice(0, 7);
     const mp = MONTH_PLAN[mk], tasks = launchTasks(now);
     const bg = BG_TASKS.find(([a, b]) => key >= a && key <= b);
     const lastLaunch = LAUNCHES.length ? LAUNCHES[LAUNCHES.length - 1][0] : "";
-    const rows = [];
-    if (tasks.length) rows.push(["Launch task", tasks.map(x => `${x.step}: <span class="lg lg${x.g}">Group ${x.g}</span>`).join(" · ")]);
-    else if (lastLaunch && key > dayKey(addDays(fromIso(lastLaunch), 3))) rows.push(["Launch task", "No launch calendar for this month yet. Build it with the same 3-day rhythm (Part 05)."]);
-    else rows.push(["Launch task", key < LAUNCHES[0][0] ? "Keep your current launches running. The new 3-group calendar starts Tuesday 1 December with Group A." : "Rest day between launches. Prepare the next one."]);
-    if (bg) rows.push(["This week", esc(bg[2])]);
-    if (ti === 6) rows.push(["Sunday review", "30 minutes on the tracker. Repeat what made money, fix or drop what didn't."]);
-    if (key.endsWith("-12-31")) rows.push(["Month review", "Review December and build the January calendar."]);
-    rows.push(["Plan B", "Learning only: at most 1–2 hours, spending no money."]);
-    return `<div class="bc-top"><span class="bc-eye">Building · today builds the dream</span><button class="bc-open" data-view="building">Open plan →</button></div>
-      ${mp ? `<div class="bc-month"><b>${esc(mp.t)}</b><span>${esc(mp.n)} · ${esc(phaseLabel(now))}</span></div>` : `<div class="bc-phase">${esc(phaseLabel(now))}</div>`}
-      <div class="bc-rows">${rows.map(([a, b]) => `<div class="bc-row"><span>${a}</span><div>${b}</div></div>`).join("")}</div>`;
+    const now_ = [];
+    if (mp) now_.push(["This month", `<b>${esc(mp.t)}</b> · ${esc(mp.n)}`]);
+    if (tasks.length) now_.push(["Launch task", tasks.map(x => `${x.step}: <span class="lg lg${x.g}">Group ${x.g}</span>`).join(" · ")]);
+    else if (lastLaunch && key > dayKey(addDays(fromIso(lastLaunch), 3))) now_.push(["Launch task", "No launch calendar for this month yet. Build it with the same 3-day rhythm (Part 05)."]);
+    else now_.push(["Launch task", key < LAUNCHES[0][0] ? "Keep your current launches running. The new 3-group calendar starts Tuesday 1 December with Group A." : "Rest day between launches. Prepare the next one."]);
+    if (bg) now_.push(["This week", esc(bg[2])]);
+    const next_ = [["Phase", esc(phaseLabel(now))], ["Next gate", esc(nextGate(now))], ["Plan B today", "Learning only: at most 1–2 hours, spending no money."]];
+    const lane = (cls, title, rows) => `<div class="bc-lane ${cls}"><div class="bc-lt">${title}</div>${rows.map(([a, b]) => `<div class="bc-row"><span>${a}</span><div>${b}</div></div>`).join("")}</div>`;
+    const extra = ti === 6 ? `<div class="bc-sun"><b>Sunday review</b> · 30 minutes on the tracker. Repeat what made money, fix or drop what didn't.</div>`
+      : key.endsWith("-12-31") ? `<div class="bc-sun"><b>Month review</b> · review December and build the January calendar.</div>` : "";
+    return `<div class="bc-top"><span class="bc-eye">The bridge · today → tomorrow</span><button class="bc-open" data-view="building">Open plan →</button></div>
+      <div class="bc-lanes">${lane("now", "Today · build the business you have", now_)}${lane("next", "Tomorrow · build the business that goes global", next_)}</div>${extra}`;
   }
 
   const BT = (head, rows, w) => `<div class="btab"><table><tr>${head.map((h, i) => `<th${w && w[i] ? ` style="width:${w[i]}"` : ""}>${h}</th>`).join("")}</tr>${rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</table></div>`;

@@ -23,14 +23,17 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 
 ## Daily schedule
 
-| Time  | Habit          | Target |
-|-------|----------------|--------|
-| 06:00 | Affirmations   | 7/7    |
-| 06:15 | Bible Study    | 7/7    |
-| 09:00 | Create (shoot Mon · Wed · Sat, copywriting other days) | 7/7 |
-| 11:00 | Sell Products  | 5/7    |
-| 20:00 | Read Book      | 6/7    |
-| 20:45 | Becoming       | 6/7    |
+No clock times: do the habits in this order, whenever your day starts. Each habit shows two jobs, one for today and one for tomorrow.
+
+| Order | Habit | Target |
+|-------|-------|--------|
+| 1 | Affirmations | 7/7 |
+| 2 | Bible Study | 7/7 |
+| 3 | Read Book | 6/7 |
+| 4 | Create (shoot Mon · Wed · Sat, copywriting other days) | 7/7 |
+| 5 | Sell | 7/7 |
+| 6 | Becoming | 6/7 |
+| All day | Abstain | 7/7 |
 
 ## Becoming themes
 

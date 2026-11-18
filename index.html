@@ -207,6 +207,9 @@ details.act[open] summary::after { content: "–"; }
 .rday.today { border-color: var(--lime); }
 .rday small { display: block; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .rday b { font-family: var(--f-head); font-weight: 600; font-size: 14px; text-transform: uppercase; }
+.tasks { display: flex; flex-direction: column; gap: 4px; margin-top: 7px; }
+.task { font-size: 13px; line-height: 1.45; color: var(--fg); }
+.task b { font-family: var(--f-head); font-weight: 600; font-size: 10px; letter-spacing: 1.1px; text-transform: uppercase; color: var(--lime); margin-right: 6px; }
 .jobs { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; border-left: 2px solid var(--line); padding-left: 9px; }
 .jobs > div { font-size: 12px; line-height: 1.4; color: var(--muted); min-width: 0; }
 .jobs span { font-family: var(--f-head); font-weight: 600; font-size: 9.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--lime); margin-right: 6px; }
@@ -532,7 +535,6 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
         <div class="today-count"><b id="todayDone">0</b> / <span id="todayDue">6</span> done</div>
       </div>
     </div>
-    <div class="buildcard" id="buildCard"></div>
     <div class="bar daybar" role="progressbar" aria-label="Today's progress" aria-valuemin="0" aria-valuemax="100" id="dayBarRole"><i id="dayBar"></i></div>
     <div class="next" id="nextUp"></div>
     <div class="tlist" id="tlist"></div>
@@ -683,22 +685,14 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
   // keep the sign-in details from the email link before the app rewrites the address
   const AUTH_URL = { hash: location.hash, search: location.search };
   const HABITS = [
-    { k: "aff",    n: "Affirmations",   s: "Self-identity alignment",               g: "15 min",    t: 7, time: "1",
-      td: "Start the day aligned and calm.", tm: "Rewire who you are becoming: the man on the goal card." },
-    { k: "bible",  n: "Bible Study",    s: "Spiritual alignment & study",           g: "30 min",    t: 7, time: "2",
-      td: "Steady and grounded for the work ahead.", tm: "The spiritually grounded man of your dream life." },
-    { k: "read",   n: "Read Book",      s: "Business, marketing & mindset",         g: "30+ min",   t: 6, time: "3",
-      td: "One idea you apply in today's work.", tm: "The well-read man, and the knowledge a global business needs." },
-    { k: "create", n: "Create",         s: "Shoot Mon · Wed · Sat, copywriting the other days", g: "60–90 min", t: 7, time: "4",
-      td: "Copy and content for the current launches.", tm: "Reps in copywriting and content, the skills the global brand runs on." },
-    { k: "sell",   n: "Sell",           s: "15 min skill of the day, then outreach, calls & follow-ups", g: "60 min", t: 7, time: "5",
-      td: "Money in now: today's launch task and closing.", tm: "Reps in closing and offers, and every sale funds Plan B." },
-    { k: "become", n: "Curated Content · Becoming", s: "Deliberate study from the Becoming blueprint", g: "30 min", t: 6, time: "6",
-      td: "Refine how you see, speak and carry yourself.", tm: "The eloquent, sophisticated, well-connected man of the dream." },
-    { k: "abst",   n: "Abstain",        s: "One day at a time · mark it any time", g: "All day", t: 7, time: null,
-      td: "Self-command for one day.", tm: "The character that keeps the dream once it is built." }
+    { k: "aff",    n: "Affirmations",   s: "Self-identity alignment",               g: "15 min",    t: 7, time: "1" },
+    { k: "bible",  n: "Bible Study",    s: "Spiritual alignment & study",           g: "30 min",    t: 7, time: "2" },
+    { k: "read",   n: "Read Book",      s: "Business, marketing & mindset",         g: "30+ min",   t: 6, time: "3" },
+    { k: "create", n: "Create",         s: "Shoot Mon · Wed · Sat, copywriting the other days", g: "60–90 min", t: 7, time: "4" },
+    { k: "sell",   n: "Sell",           s: "15 min skill of the day, then outreach, calls & follow-ups", g: "60 min", t: 7, time: "5" },
+    { k: "become", n: "Curated Content · Becoming", s: "Deliberate study from the Becoming blueprint", g: "30 min", t: 6, time: "6" },
+    { k: "abst",   n: "Abstain",        s: "One day at a time · mark it any time", g: "All day", t: 7, time: null }
   ];
-  const jobsHTML = (hb) => `<div class="jobs"><div><span>Today</span>${hb.td}</div><div><span>Tomorrow</span>${hb.tm}</div></div>`;
   const TOTAL = HABITS.reduce((a, h) => a + h.t, 0);
   const isSched = (h, i) => !h.days || h.days.includes(i);
   const SHIELD = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
@@ -943,12 +937,12 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       const row = document.createElement("div");
       if (hb.k === "abst") {
         row.className = "titem abitem"; row.dataset.k = "abst";
-        row.innerHTML = `<div class="ttime ashield">${SHIELD}</div><div style="min-width:0"><div class="tname">Abstain</div><div class="tsub">One day at a time · mark it any time</div>${jobsHTML(hb)}<div class="astats" id="abStats"></div></div><div class="abtns"><button class="abtn ok" data-mark="kept" aria-pressed="false" aria-label="Kept today">${CK}</button><button class="abtn no" data-mark="slip" aria-pressed="false" aria-label="Slipped today">${XMARK}</button></div>`;
+        row.innerHTML = `<div class="ttime ashield">${SHIELD}</div><div style="min-width:0"><div class="tname">Abstain</div><div class="tsub">One day at a time · mark it any time</div><div class="astats" id="abStats"></div></div><div class="abtns"><button class="abtn ok" data-mark="kept" aria-pressed="false" aria-label="Kept today">${CK}</button><button class="abtn no" data-mark="slip" aria-pressed="false" aria-label="Slipped today">${XMARK}</button></div>`;
         tl.appendChild(row); return;
       }
       row.className = "titem"; row.dataset.k = hb.k;
       const pick = hb.k === "become" ? `<input class="tpick" id="tpick" data-pick="today" placeholder="What will you watch, read or listen to?" aria-label="Today's Becoming pick">` : "";
-      row.innerHTML = `<div class="ttime">${hb.time}</div><div style="min-width:0"><div class="tname">${hb.k === "become" ? "Becoming" : hb.n}</div><div class="tsub" id="tsub-${hb.k}">${hb.g} · ${hb.s}</div>${jobsHTML(hb)}${pick}</div><button class="tick" data-k="${hb.k}" data-i="today" aria-pressed="false" aria-label="${hb.n}, today">${CHECK}</button>`;
+      row.innerHTML = `<div class="ttime">${hb.time}</div><div style="min-width:0"><div class="tname">${hb.k === "become" ? "Becoming" : hb.n}</div><div class="tsub" id="tsub-${hb.k}">${hb.g} · ${hb.s}</div>${pick}</div><button class="tick" data-k="${hb.k}" data-i="today" aria-pressed="false" aria-label="${hb.n}, today">${CHECK}</button>`;
       tl.appendChild(row);
     });
   }
@@ -1035,11 +1029,12 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       $("dayBar").style.width = dp + "%";
       $("dayBarRole").setAttribute("aria-valuenow", dp);
       $("tsub-create").innerHTML = (CREATE_DAYS[ti] === "shoot" ? `<em>Shoot day</em> · film your videos, edit the same day` : `<em>Copywriting</em> · write emails, ad copy, captions or scripts`) + `<div class="seclinks">${CREATE_DAYS[ti] === "shoot" ? '<button class="seclink" data-dsec="d04"><b>04</b>Content Creation</button>' : '<button class="seclink" data-dsec="d02"><b>02</b>Copywriting</button>'}</div>`;
-      const lt = launchTasks(new Date());
+      const TT = todayTasks(new Date());
       $("tsub-sell").innerHTML = `<em>Skill of the day</em> · learn 15 min, then sell<div class="seclinks">${dLink(DOING_DAYS[ti])}</div>`
-        + (lt.length ? `<div class="sell-launch"><b>Launch task</b> ${lt.map(x => `${x.step}: <span class="lg lg${x.g}">Group ${x.g}</span>`).join(" · ")}</div>` : "");
-      $("tsub-aff").innerHTML = `<em>Goal card</em> · rewrite it 5–10 times, read the dream, visualise it<div class="aff-card">${esc(GOAL_CARD)}</div>`;
-      $("buildCard").innerHTML = buildToday();
+        + `<div class="tasks">${taskLine("Today", TT.launch.join(" "))}${TT.sell ? taskLine("This week", TT.sell) : ""}${TT.review ? taskLine("Sunday", "30-minute review of the tracker. Repeat what made money, fix or drop what didn't.") : ""}</div>`;
+      if (TT.create) $("tsub-create").innerHTML += `<div class="tasks">${taskLine("This week", TT.create)}</div>`;
+      $("tsub-aff").innerHTML = `<div class="tasks">${taskLine("Today", "Rewrite the goal card 5–10 times, read the dream, visualise it.")}</div><div class="aff-card">${esc(GOAL_CARD)}</div>`;
+
       $("tsub-become").innerHTML = `<em>${THEMES[ti].t}</em><div class="seclinks">${secLinks(THEMES[ti].s)}</div>${todaySelection()}`;
       setVal($("tpick"), w.picks[ti]);
       // up next
@@ -1048,7 +1043,7 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
       const pending = order.filter(h => isSched(h, ti) && !w.ticks[h.k][ti]);
       document.querySelectorAll(".titem").forEach(r => r.classList.toggle("up", !!next && r.dataset.k === next.k));
       $("nextUp").innerHTML = done >= due ? "<b>Everything done today.</b> Well done. Rest, then do it again tomorrow."
-        : next ? `Up next: <b>${next.k === "become" ? "Becoming" : next.n}</b> · in your own time, in this order`
+        : next ? `Up next: <b>${next.k === "become" ? "Becoming" : next.n}</b> `
         : `${pending.length} still open today. Never miss twice.`;
     }
 
@@ -1748,6 +1743,30 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     ["2026-12-14", "2026-12-20", "Write the follow-up messages that move Alibaba buyers to Pinduoduo."],
     ["2026-12-21", "2026-12-31", "Write the follow-up messages that move Pinduoduo buyers to Facebook ads. Set up the email tool so follow-up goes live in January."]
   ];
+  // This week's plan tasks, split by the habit they belong to
+  const WEEK_TASKS = [
+    ["2026-11-01", "2026-11-30", { create: "Prepare the new ad creative and record the done-for-you pitch video.", sell: "Set the done-for-you price and what it includes. Create Group C. Set up the launch tracker." }],
+    ["2026-12-01", "2026-12-06", { sell: "Start the new-message test on campaign 2, with its own pre-filled WhatsApp message." }],
+    ["2026-12-07", "2026-12-13", { sell: "Sort past buyers into three segments: Alibaba only; Alibaba + Pinduoduo; all three." }],
+    ["2026-12-14", "2026-12-20", { copy: "Write the follow-up messages that move Alibaba buyers to Pinduoduo." }],
+    ["2026-12-21", "2026-12-31", { copy: "Write the follow-up messages that move Pinduoduo buyers to Facebook ads.", sell: "Set up the email tool so follow-up goes live in January." }]
+  ];
+  const STEP_TASK = [
+    (g) => `Run ads for Group ${g} (about 14,000 FCFA, turned off when the budget is reached).`,
+    (g) => `Run the Group ${g} orientation, with the done-for-you pitch.`,
+    (g) => `Follow up Group ${g}: those who attended.`,
+    (g) => `Final follow-up and close for Group ${g}. Pay Facebook from the sales.`
+  ];
+  function todayTasks(date) {
+    const key = dayKey(date), wt = (WEEK_TASKS.find(([a, b]) => key >= a && key <= b) || [, , {}])[2];
+    const launch = launchTasks(date).map(x => STEP_TASK[x.k](x.g));
+    if (!launch.length && key < LAUNCHES[0][0]) launch.push("Run today's step of your current launch.");
+    else if (!launch.length && key > dayKey(addDays(fromIso(LAUNCHES[LAUNCHES.length - 1][0]), 3))) launch.push("No launch calendar for this month yet: build it with the same 3-day rhythm.");
+    else if (!launch.length) launch.push("No launch step today. Prepare the next launch.");
+    const shoot = CREATE_DAYS[(date.getDay() + 6) % 7] === "shoot";
+    return { launch, create: wt.create || (!shoot ? wt.copy : ""), sell: wt.sell, review: date.getDay() === 0 };
+  }
+  const taskLine = (label, text) => `<div class="task"><b>${label}</b><span>${text}</span></div>`;
   const dayKey = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   function launchTasks(date) {
     const t = new Date(date.getFullYear(), date.getMonth(), date.getDate());

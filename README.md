@@ -18,7 +18,7 @@ Tick your six daily habits, follow each day's Becoming theme, watch your weekly 
 - **Sounds:** click on tick, chime when the day is complete, celebration at 100% (can be switched off)
 - **Key wins** and **one strategy** notes for each week
 - **Becoming tab:** the full Becoming brochure inside the app (12 sections, A–L; sources by format, action steps, the rules), with a letter bar to jump straight to any section
-- **Doing tab:** Volume II inside the app: the skill stack (00 Foundation to 06 Media Buying), sources by format, Hall of Fame, action steps with rep targets, and the machinery (Swipe Vault, Numbers, Reps, Feedback, Seasons, Market, Seller's Code), with its own jump bar
+- **Doing tab:** Volume II as a practice floor, not a reading list. Seven skills, in launch order: **Master** (go deep: one daily drill, one weekly drill) 01 Content Creation, 02 Copywriting (Email Marketing), 03 Public Speaking, 04 Sales Closing; **Sharpen** (keep sharp by using them) 05 Offer Creation (Product Development), 06 Funnel Building, 07 Media Buying. Each skill has its drills, a number to track and practice material; then the swipe vault, numbers, feedback loop, market and Seller's Code. Psychology runs through all seven. On Today, Create shows the content drill on shoot days and the copywriting drill on copy days; Sell alternates the closing and speaking drills, with the weekly drills on fixed days (content Sat, copy Fri, speaking Tue, closing Sun). Building's skill list shows the same seven.
 - **Theme links:** tap a section on today's Becoming theme to open it in the Blueprint
 
 ## Daily schedule

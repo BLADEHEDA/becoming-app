@@ -764,12 +764,25 @@ footer b { letter-spacing: 1.6px; font-size: 11px; }
     const L = list.length, at = (k) => list[((k % L) + L) % L];
     return !L ? [] : L === 1 ? [at(0)] : [at(2 * n), at(2 * n + 1)];
   }
+  // Series rule: no series before January 2027, only films. From then on, one series at a time: the first one in the
+  // Series list, every Film & Series day, until it is finished and taken off the list. Then the next one comes up.
+  const SERIES_FROM = new Date(2027, 0, 1);
   function todaysPicks(L, date) {
-    const sec = BP.find(b => b.l === L), n = occurrence(L, date || new Date());
+    date = date || new Date();
+    const sec = BP.find(b => b.l === L), n = occurrence(L, date);
     if (!sec || n < 0) return null;
+    const series = sec.g.find(g => g.f === "Series");
+    if (series) {
+      if (date >= SERIES_FROM && series.items.length) {
+        const it = series.items[0];
+        return { sec, ch: [{ f: "Series", name: it.split(" — ")[0], it }], music: null, watching: true };
+      }
+      const films = sec.g.filter(g => g.f === "Film").flatMap(g => g.items.map(it => ({ f: g.f, name: it.split(" — ")[0], it })));
+      return { sec, ch: pickTwo(films, n), music: null };
+    }
     return { sec, ch: pickTwo(channelPool(sec), n), music: L === "C" ? pickTwo(GENRES, n) : null };
   }
-  const chLink = (c) => c.f === "YouTube" || c.f === "Institution"
+  const chLink = (c) => c.f === "Series" ? `<span class="selch">${esc(c.name)}<small>Now watching · one series until it's finished</small></span>` : c.f === "YouTube" || c.f === "Institution"
     ? `<a class="selch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(c.name)}" target="_blank" rel="noopener">${esc(c.name)}<span aria-hidden="true">↗</span></a>`
     : `<span class="selch">${esc(c.name)}<small>${esc(c.f)}</small></span>`;
   function selectionHTML(P, name) {
